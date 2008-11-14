@@ -1,10 +1,11 @@
-as.yaml <- 
+as.yaml <-
 function(x, ...) {
   UseMethod("as.yaml", x)
 }
 
-as.yaml.list <- 
+as.yaml.list <-
 function(x, line.sep = c("\n", "\r\n"), indent = 2, pre.indent = 0, ...) {
+  if (length(x) == 0)  return("[]")
   x.names <- names(x)
   is.map <- (!is.null(x.names) && length(x.names) == length(x))
   if (!is.map) {
@@ -21,9 +22,9 @@ function(x, line.sep = c("\n", "\r\n"), indent = 2, pre.indent = 0, ...) {
     # this is wasteful
     len <- length(strsplit(tmp, line.sep)[[1]])
 
-    if (len == 1) 
+    if (len == 1 && !is.list(x[[i]]))
       retval[[i]] <- paste(pre.indent.str, x.names[i], ": ", tmp[[1]], sep = "")
-    else 
+    else
       retval[[i]] <- paste(pre.indent.str, x.names[i], ":", line.sep, tmp, sep = "")
   }
 
@@ -32,6 +33,7 @@ function(x, line.sep = c("\n", "\r\n"), indent = 2, pre.indent = 0, ...) {
 
 as.yaml.data.frame <-
 function(x, line.sep = c("\n", "\r\n"), indent = 2, pre.indent = 0, column.major = TRUE, ...) {
+  if (nrow(x) == 0)  return("[]")
   x.names <- names(x)
   retval  <- vector("list", ifelse(column.major, ncol(x), nrow(x)))
   pre.indent.str <- paste(rep(" ", pre.indent * indent), collapse="", sep = "")
@@ -54,8 +56,9 @@ function(x, line.sep = c("\n", "\r\n"), indent = 2, pre.indent = 0, column.major
   paste(retval, collapse = line.sep)
 }
 
-as.yaml.default <- 
+as.yaml.default <-
 function(x, line.sep = c("\n", "\r\n"), indent = 2, pre.indent = 0, ...) {
+  if (length(x) == 0)  return("[]")
   retval <- vector("list", length(x))
   pre.indent.str <- paste(rep(" ", pre.indent * indent), collapse = "", sep = "")
   line.sep <- match.arg(line.sep)
@@ -68,6 +71,6 @@ function(x, line.sep = c("\n", "\r\n"), indent = 2, pre.indent = 0, ...) {
       retval[[i]] <- paste(pre.indent.str, "- ", x[[i]], sep = "")
     }
   }
-  
+
   paste(retval, collapse = line.sep)
 }
