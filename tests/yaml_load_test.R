@@ -305,4 +305,20 @@ test_should_load_empty_documents <- function() {
   assert_equal(NULL, x)
 }
 
+test_should_load_omap <- function() {
+  x <- yaml.load("--- !omap\n- foo:\n  - 1\n  - 2\n- bar:\n  - 3\n  - 4")
+  assert_equal(2, length(x))
+  assert_equal(c("foo", "bar"), names(x))
+  assert_equal(1:2, x$foo)
+  assert_equal(3:4, x$bar)
+}
+
+test_should_error_when_omap_is_invalid <- function() {
+  x <- try(yaml.load("--- !omap\nhey!"))
+  assert(inherits(x, "try-error"))
+
+  x <- try(yaml.load("--- !omap\n- sup?"))
+  assert(inherits(x, "try-error"))
+}
+
 source("test_runner.r")

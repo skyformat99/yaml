@@ -1,5 +1,6 @@
 \name{yaml.load}
 \alias{yaml.load}
+\alias{yaml.load_file}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Convert a YAML string into R objects }
 \description{
@@ -7,17 +8,24 @@
   into R objects.
 }
 \usage{
-yaml.load(string, as.named.list = TRUE, handlers = NULL)
+  yaml.load(string, as.named.list = TRUE, handlers = NULL)
+  yaml.load_file(input, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{string}{ the YAML string to be parsed (character vector of length 1) }
+  \item{string}{ the YAML string to be parsed, a filename, or a connection }
   \item{as.named.list}{ whether or not to return a named list for maps (TRUE by default) }
   \item{handlers}{ named list of custom handler functions for YAML types (see Details). }
+  \item{input}{ a filename or connection }
+  \item{...}{ arguments to pass to yaml.load }
 }
 \details{
+  Use \code{yaml.load} to load a YAML string.  For files and connections, use
+  \code{yaml.load_file}, which calls \code{yaml.load} with the contents of the specified
+  file or connection.
+
   Sequences of uniform data (i.e. a sequence of integers) are converted into vectors.  If
-  the sequence is not uniform, it's returned as a list. Maps are converted into named lists 
+  the sequence is not uniform, it's returned as a list. Maps are converted into named lists
   by default, and all the keys in the map are converted to strings.  If you don't want the
   keys to be coerced into strings, set \code{as.named.list} to FALSE.  When it's FALSE, a
   list will be returned with an additional attribute named 'keys', which is a list of the
@@ -37,9 +45,9 @@ yaml.load(string, as.named.list = TRUE, handlers = NULL)
   returned.  If the root object is a sequence, a list or vector is returned, depending
   on the contents of the sequence.  A vector of length 1 is returned for single objects.
 }
-\references{ 
+\references{
   YAML: http://yaml.org
-  Syck YAML Parser: http://whytheluckystiff.net/syck/
+  Syck YAML Parser: (formerly) http://whytheluckystiff.net/syck/
 }
 \author{ Jeremy Stephens <jeremy.stephens@vanderbilt.edu }
 \seealso{ \code{\link{as.yaml}} }
@@ -48,9 +56,11 @@ yaml.load(string, as.named.list = TRUE, handlers = NULL)
   yaml.load("foo: 123\nbar: 456")
   yaml.load("- foo\n- bar\n- 3.14")
   yaml.load("foo: bar\n123: 456", as.named.list = FALSE)
-\dontrun{
-  yaml.load(readLines("foo.yml"))
-}
+
+  # reading from a file (uses readLines internally)
+  cat("foo: 123", file="foo.yml", sep="\n")
+  yaml.load_file('foo.yml')
+  unlink("foo.yml") # tidy up
 
   # custom string-type handler
   my.float.handler <- function(x) { as.numeric(x) + 123 }

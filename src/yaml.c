@@ -386,9 +386,10 @@ R_merge_list( map, list, use_named )
 }
 
 static SEXP
-default_null_handler(type, data, R_cmd)
+default_null_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   return R_NilValue;
@@ -396,18 +397,20 @@ default_null_handler(type, data, R_cmd)
 
 /*
 static SEXP
-default_binary_handler(type, data, R_cmd)
+default_binary_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
 }
 */
 
 static SEXP
-default_bool_yes_handler(type, data, R_cmd)
+default_bool_yes_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj = NEW_LOGICAL(1);
@@ -416,9 +419,10 @@ default_bool_yes_handler(type, data, R_cmd)
 }
 
 static SEXP
-default_bool_no_handler(type, data, R_cmd)
+default_bool_no_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj = NEW_LOGICAL(1);
@@ -427,52 +431,57 @@ default_bool_no_handler(type, data, R_cmd)
 }
 
 static SEXP
-default_int_hex_handler(type, data, R_cmd)
+default_int_hex_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj = NEW_INTEGER(1);
-  INTEGER(obj)[0] = (int)strtol(data, NULL, 16);
+  INTEGER(obj)[0] = (int)strtol((char *)data, NULL, 16);
   return obj;
 }
 
 static SEXP
-default_int_oct_handler(type, data, R_cmd)
+default_int_oct_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj = NEW_INTEGER(1);
-  INTEGER(obj)[0] = (int)strtol(data, NULL, 8);
+  INTEGER(obj)[0] = (int)strtol((char *)data, NULL, 8);
   return obj;
 }
 
 /*
 static SEXP
-default_int_base60_handler(type, data, R_cmd)
+default_int_base60_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
 }
 */
 
 static SEXP
-default_int_handler(type, data, R_cmd)
+default_int_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj = NEW_INTEGER(1);
-  INTEGER(obj)[0] = (int)strtol(data, NULL, 10);
+  INTEGER(obj)[0] = (int)strtol((char *)data, NULL, 10);
   return obj;
 }
 
 static SEXP
-default_float_nan_handler(type, data, R_cmd)
+default_float_nan_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj = NEW_NUMERIC(1);
@@ -481,9 +490,10 @@ default_float_nan_handler(type, data, R_cmd)
 }
 
 static SEXP
-default_float_inf_handler(type, data, R_cmd)
+default_float_inf_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj = NEW_NUMERIC(1);
@@ -492,9 +502,10 @@ default_float_inf_handler(type, data, R_cmd)
 }
 
 static SEXP
-default_float_neginf_handler(type, data, R_cmd)
+default_float_neginf_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj = NEW_NUMERIC(1);
@@ -503,13 +514,14 @@ default_float_neginf_handler(type, data, R_cmd)
 }
 
 static SEXP
-default_float_handler(type, data, R_cmd)
+default_float_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   double f;
-  f = strtod( data, NULL );
+  f = strtod( (char *)data, NULL );
 
   SEXP obj;
   obj = NEW_NUMERIC(1);
@@ -519,9 +531,10 @@ default_float_handler(type, data, R_cmd)
 
 /*
 static SEXP
-default_timestamp_iso8601_handler(type, data, R_cmd)
+default_timestamp_iso8601_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
 }
@@ -529,9 +542,10 @@ default_timestamp_iso8601_handler(type, data, R_cmd)
 
 /*
 static SEXP
-default_timestamp_spaced_handler(type, data, R_cmd)
+default_timestamp_spaced_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
 }
@@ -539,9 +553,10 @@ default_timestamp_spaced_handler(type, data, R_cmd)
 
 /*
 static SEXP
-default_timestamp_ymd_handler(type, data, R_cmd)
+default_timestamp_ymd_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
 }
@@ -549,18 +564,20 @@ default_timestamp_ymd_handler(type, data, R_cmd)
 
 /*
 static SEXP
-default_timestamp_handler(type, data, R_cmd)
+default_timestamp_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
 }
 */
 
 static SEXP
-default_merge_handler(type, data, R_cmd)
+default_merge_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj;
@@ -573,9 +590,10 @@ default_merge_handler(type, data, R_cmd)
 }
 
 static SEXP
-default_default_handler(type, data, R_cmd)
+default_default_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj;
@@ -588,40 +606,88 @@ default_default_handler(type, data, R_cmd)
 }
 
 static SEXP
-default_str_handler(type, data, R_cmd)
+default_str_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj;
   PROTECT(obj = NEW_STRING(1));
-  SET_STRING_ELT(obj, 0, mkChar(data));
+  SET_STRING_ELT(obj, 0, mkChar((char *)data));
   UNPROTECT(1);
 
   return obj;
 }
 
 static SEXP
-default_anchor_bad_handler(type, data, R_cmd)
+default_anchor_bad_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP obj;
   PROTECT(obj = NEW_STRING(1));
   SET_STRING_ELT(obj, 0, mkChar("_yaml.bad-anchor_"));
-  R_set_str_attrib(obj, install("name"), data);
+  R_set_str_attrib(obj, install("name"), (char *)data);
   R_set_class(obj, "_yaml.bad-anchor_");
   UNPROTECT(1);
 
   return obj;
 }
 
+static SEXP
+default_omap_handler(type, kind, _data, R_cmd)
+  const char *type;
+  enum syck_kind_tag kind;
+  void *_data;
+  SEXP R_cmd;
+{
+  SEXP elt, data, names, retval;
+  int i, j, data_len, elt_len, idx, total_len = 0;
+
+  data = (SEXP)_data;
+  if (TYPEOF(data) != VECSXP) {
+    error(_("omap must be a sequence"));
+  }
+
+  // get size of final list and check for validity
+  // FIXME: this is inefficient, since we've already sort of done this
+  //        in the parsing loop
+  data_len = length(data);
+  for (i = 0; i < data_len; i++) {
+    elt = VECTOR_ELT(data, i);
+    if (TYPEOF(elt) != VECSXP) {
+      error(_("omap must be a sequence of maps"));
+    }
+    total_len += length(elt);
+  }
+
+  // construct the list!
+  retval = allocVector(VECSXP, total_len);
+  PROTECT(retval);
+  names = allocVector(STRSXP, total_len);
+  SET_NAMES(retval, names);
+  for (i = 0, idx = 0; i < data_len; i++) {
+    elt = VECTOR_ELT(data, i);
+    elt_len = length(elt);
+    for (j = 0; j < elt_len; j++) {
+      SET_VECTOR_ELT(retval, idx, VECTOR_ELT(elt, j));
+      SET_STRING_ELT(names, idx, STRING_ELT(GET_NAMES(elt), j));
+      idx++;
+    }
+  }
+  UNPROTECT(1);
+  return(retval);
+}
+
 /*
 static SEXP
-default_unknown_handler(type, data, R_cmd)
+default_unknown_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
 }
@@ -649,30 +715,40 @@ run_R_handler_function(func, arg, type)
 }
 
 static SEXP
-run_user_handler(type, data, R_cmd)
+run_user_handler(type, kind, data, R_cmd)
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
   SEXP R_cmd;
 {
   SEXP tmp_obj, obj;
 
-  /* create a string to pass to the handler */
-  tmp_obj = NEW_STRING(1);
-  PROTECT(tmp_obj);
-  SET_STRING_ELT(tmp_obj, 0, mkChar(data));
+  switch(kind) {
+    case syck_str_kind:
+      /* create a string to pass to the handler */
+      tmp_obj = NEW_STRING(1);
+      PROTECT(tmp_obj);
+      SET_STRING_ELT(tmp_obj, 0, mkChar(data));
 
-  /* call R function */
-  obj = run_R_handler_function(R_cmd, tmp_obj, type);
-  UNPROTECT(1);
+      /* call R function */
+      obj = run_R_handler_function(R_cmd, tmp_obj, type);
+      UNPROTECT(1);
+      break;
+
+    case syck_seq_kind:
+      obj = run_R_handler_function(R_cmd, data, type);
+      break;
+  }
 
   return obj;
 }
 
 static SEXP
-find_and_run_handler(p, type, data)
+find_and_run_handler(p, type, kind, data)
   SyckParser *p;
   const char *type;
-  const char *data;
+  enum syck_kind_tag kind;
+  void *data;
 {
   handler *hndlr;
   st_table *hash = ((parser_xtra *)p->bonus)->handlers;
@@ -680,12 +756,12 @@ find_and_run_handler(p, type, data)
   if (!st_lookup(hash, (st_data_t)type, (st_data_t *)&hndlr))
     st_lookup(hash, (st_data_t)"unknown", (st_data_t *)&hndlr);
 
-  return hndlr->func(type, data, hndlr->R_cmd);
+  return hndlr->func(type, kind, data, hndlr->R_cmd);
 }
 
 /* originally from Ruby's syck extension; modified for R */
 static void
-yaml_org_handler( p, n, ref )
+yaml_handler( p, n, ref )
   SyckParser *p;
   SyckNode *n;
   SEXP *ref;
@@ -715,13 +791,13 @@ yaml_org_handler( p, n, ref )
       data_ptr = n->data.str->ptr;
 
       if ( type_id == NULL ) {
-        obj = find_and_run_handler(p, "unknown", data_ptr);
+        obj = find_and_run_handler(p, "unknown", n->kind, data_ptr);
       }
       else {
         if ( strncmp( type_id, "int", 3 ) == 0 || strncmp( type_id, "float", 5 ) == 0 )
           syck_str_blow_away_commas( n );
 
-        obj = find_and_run_handler(p, type_id, data_ptr);
+        obj = find_and_run_handler(p, type_id, n->kind, data_ptr);
       }
 
       PRESERVE(obj);
@@ -729,7 +805,7 @@ yaml_org_handler( p, n, ref )
 
     case syck_seq_kind:
       /* if there's a user handler for this type, we should always construct a list */
-      custom = st_lookup(xtra->handlers, (st_data_t)(type_id == NULL ? "seq" : type_id), (st_data_t *)&hndlr);
+      custom = st_is_member(xtra->handlers, (st_data_t)(type_id == NULL ? "seq" : type_id));
 
       list = Calloc(n->data.list->idx, SEXP);
       type = -1;
@@ -805,8 +881,7 @@ yaml_org_handler( p, n, ref )
       Free(list);
 
       if (custom) {
-        /* hndlr->func isn't even used in this case, which might need to change at some point */
-        tmp_obj = run_R_handler_function(hndlr->R_cmd, obj, type_id == NULL ? "seq" : type_id);
+        tmp_obj = find_and_run_handler(p, type_id == NULL ? "seq" : type_id, n->kind, obj);
         UNPROTECT_PTR(obj);
         obj = tmp_obj;
       }
@@ -985,7 +1060,7 @@ R_yaml_handler(p, n)
   SEXP *obj, tmp;
 
   obj = Calloc(1, SEXP);
-  yaml_org_handler( p, n, obj );
+  yaml_handler( p, n, obj );
 
   /* if n->id > 0, it means that i've run across a bad anchor that was just defined... or something.
    * so i want to overwrite the existing node with this one */
@@ -1114,6 +1189,7 @@ load_yaml_str(s_str, s_use_named, s_handlers)
   setup_handler(parser, "str",               default_str_handler,          R_NilValue);
   setup_handler(parser, "anchor#bad",        default_anchor_bad_handler,   R_NilValue);
   setup_handler(parser, "unknown",           default_str_handler,          R_NilValue);
+  setup_handler(parser, "omap",              default_omap_handler,         R_NilValue);
 
 //  xtra->seq_handler               = 0;
 //  xtra->map_handler               = 0;
