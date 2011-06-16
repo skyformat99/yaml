@@ -13,7 +13,7 @@
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{string}{ the YAML string to be parsed, a filename, or a connection }
+  \item{string}{ the YAML string to be parsed }
   \item{as.named.list}{ whether or not to return a named list for maps (TRUE by default) }
   \item{handlers}{ named list of custom handler functions for YAML types (see Details). }
   \item{input}{ a filename or connection }
@@ -57,10 +57,12 @@
   yaml.load("- foo\n- bar\n- 3.14")
   yaml.load("foo: bar\n123: 456", as.named.list = FALSE)
 
+\dontrun{
   # reading from a file (uses readLines internally)
   cat("foo: 123", file="foo.yml", sep="\n")
   yaml.load_file('foo.yml')
   unlink("foo.yml") # tidy up
+}
 
   # custom string-type handler
   my.float.handler <- function(x) { as.numeric(x) + 123 }
@@ -76,6 +78,10 @@
   yaml.load("!sqrt 555", handlers=list(sqrt=function(x) { sqrt(as.integer(x)) }))
   yaml.load("!foo\n- 1\n- 2", handlers=list(foo=function(x) { as.integer(x) + 1 }))
   yaml.load("!bar\none: 1\ntwo: 2", handlers=list(foo=function(x) { x$one <- "one"; x }))
+
+  # loading R expressions
+  doc <- yaml.load("inc: !expr function(x) x + 1")
+  doc$inc(1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

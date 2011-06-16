@@ -80,4 +80,35 @@ function() {
   assert_equal("1.0", as.yaml(1.0))
 }
 
+test_multiline_string <-
+function() {
+  assert_equal("|\n  foo\n  bar", as.yaml("foo\nbar"))
+  assert_equal("- foo\n- |\n  bar\n  baz", as.yaml(c("foo", "bar\nbaz")))
+  # Excess indentation, perhaps
+  assert_equal("foo: |\n    foo\n    bar", as.yaml(list(foo = "foo\nbar")))
+  assert_equal("a:\n  - foo\n  - bar\n  - |\n    baz\n    quux", as.yaml(data.frame(a = c('foo', 'bar', 'baz\nquux'))))
+}
+
+test_function <-
+function() {
+  x <- function() { runif(100) }
+  expected <- "!expr |\n  function () \n  {\n      runif(100)\n  }"
+  result <- as.yaml(x)
+  assert_equal(expected, result)
+}
+
+test_list_with_unnamed_items <-
+function() {
+  x <- list(foo=list(list(x = 1L, y = 2L), list(x = 3L, y = 4L)))
+  expected <- "foo:
+  -
+    x: 1
+    y: 2
+  -
+    x: 3
+    y: 4"
+  result <- as.yaml(x)
+  assert_equal(expected, result)
+}
+
 source("test_runner.r")
