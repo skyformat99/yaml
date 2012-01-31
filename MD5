@@ -1,5 +1,5 @@
 c396880d408143ba812264a521827e6f *COPYING
-97c1a9f8a6055f37ecc94792fa975109 *DESCRIPTION
+ee89d49c1dec44afdd6bc9b74a2db7a6 *DESCRIPTION
 386131dc45ea829321445197322e41ac *NAMESPACE
 6706ef6f876a609b60eac927099d3ce4 *R/as.yaml.R
 6afd5d2e4ec2e30595e0b59bb916ddc0 *R/yaml.load.R
@@ -17,14 +17,14 @@ abcf95521eeca0a9e350ed5c060d7ddb *src/emitter.c
 9ccd93e04a22c9e544a6942d89e72785 *src/implicit.c
 c878fec04866e92d0dc6614ea6263c3e *src/loader.c
 1a16662902d2e63e2af2470d0fe43794 *src/parser.c
-a377acc0afa85b5da0576ec849b03e00 *src/r-ext.c
-4d77dfc65373a6d85069acceaed669e1 *src/r-ext.h
+183005346113edbc3b1236c532ae34be *src/r-ext.c
+7b884f9f43eca171a75aa3c44a2f53ca *src/r-ext.h
 b64426745242b69df117bff24a2cda7a *src/reader.c
 000c0f7fbdaa7c33390a4f79c6821fe5 *src/scanner.c
 ede6fecf08c77109b81f1054d4224a91 *src/writer.c
 def79a19118f65e1eed6edb097665617 *src/yaml.h
 d81634fada14b35d5f6baee32dd5ecd7 *src/yaml_private.h
-934a9f6804756226f7267908dc1023e9 *tests/as_yaml_test.R
+765db5726a9174c8392fb6d0dc8bbe7d *tests/as_yaml_test.R
 b70b0ade3126a031e5bf77d8aa9af4f2 *tests/test.yml
 07121bf82db657f3c70f83dde6f2f348 *tests/test_helper.r
 cabcbed91509ec0d3732217ca0d55152 *tests/test_runner.r
