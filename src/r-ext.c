@@ -254,11 +254,18 @@ R_has_class( obj, name )
 
 /* Take a CHARSXP, return a scalar style (for emitting) */
 static yaml_scalar_style_t
-R_scalar_style(obj)
+R_string_style(obj)
   SEXP obj;
 {
+  yaml_char_t *tag;
   const char *chr = CHAR(obj);
   int len = length(obj), j;
+
+  /* If this element has an implicit tag, it needs to be quoted */
+  tag = find_implicit_tag((yaml_char_t *) chr, len);
+  if (strcmp((char *) tag, "str") != 0) {
+    return YAML_SINGLE_QUOTED_SCALAR_STYLE;
+  }
 
   /* Change to literal if there's a newline in this string */
   for (j = 0; j < len; j++) {
@@ -792,9 +799,19 @@ handle_scalar(event, stack, return_tag)
   tag = event->data.scalar.tag;
   value = event->data.scalar.value;
   if (tag == NULL || strcmp((char *)tag, "!") == 0) {
-    /* If there's no tag, try to tag it */
-    len = event->data.scalar.length;
-    tag = find_implicit_tag(value, len);
+    /* There's no tag! */
+
+    /* If this is a quoted string, leave it as a string */
+    switch (event->data.scalar.style) {
+      case YAML_SINGLE_QUOTED_SCALAR_STYLE:
+      case YAML_DOUBLE_QUOTED_SCALAR_STYLE:
+        tag = (yaml_char_t *) "str";
+        break;
+      default:
+        /* Try to tag it */
+        len = event->data.scalar.length;
+        tag = find_implicit_tag(value, len);
+    }
   }
   else {
     tag = process_tag(tag);
@@ -1503,7 +1520,7 @@ emit_factor(emitter, event, obj)
     level_idx = INTEGER(obj)[i] - 1;
     level_chr = STRING_ELT(levels, level_idx);
     if (!scalar_style_is_set[level_idx]) {
-      scalar_styles[level_idx] = R_scalar_style(level_chr);
+      scalar_styles[level_idx] = R_string_style(level_chr);
     }
 
     if (!emit_char(emitter, event, level_chr, NULL, 1, scalar_styles[level_idx])) {
@@ -1570,6 +1587,14 @@ emit_object(emitter, event, obj, tag, omap, column_major)
           if (!emit_factor(emitter, event, obj))
             return 0;
         }
+        else if (TYPEOF(obj) == STRSXP) {
+          /* Might need to add quotes */
+          for (i = 0; i < length(obj); i++) {
+            chr = STRING_ELT(obj, i);
+            if (!emit_char(emitter, event, chr, tag, implicit_tag, R_string_style(chr)))
+              return 0;
+          }
+        }
         else {
           if (TYPEOF(obj) == REALSXP) {
             obj = R_format_real(obj);
@@ -1580,8 +1605,7 @@ emit_object(emitter, event, obj, tag, omap, column_major)
 
           for (i = 0; i < length(obj); i++) {
             chr = STRING_ELT(obj, i);
-
-            if (!emit_char(emitter, event, chr, tag, implicit_tag, R_scalar_style(chr)))
+            if (!emit_char(emitter, event, chr, tag, implicit_tag, YAML_ANY_SCALAR_STYLE))
               return 0;
           }
         }
