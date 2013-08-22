@@ -1,5 +1,5 @@
 281e69bc36b6d00c315deca033de4139 *COPYING
-3e230d82a862423789a8fcf916ef9a39 *DESCRIPTION
+7727dcb7563cfe95857cde383f068655 *DESCRIPTION
 88bc3fead9983295e015dee8e72d01e9 *LICENSE
 386131dc45ea829321445197322e41ac *NAMESPACE
 88710d36c1647ea5bf8ac3ed455cb6ac *R/as.yaml.R
@@ -22,7 +22,7 @@ abcf95521eeca0a9e350ed5c060d7ddb *src/emitter.c
 20fb70767318d50089c2c3151dca6667 *src/implicit.c
 c878fec04866e92d0dc6614ea6263c3e *src/loader.c
 1a16662902d2e63e2af2470d0fe43794 *src/parser.c
-ef8b4f39293b02a8e8d24ae94bfaa132 *src/r-ext.c
+31eecc44c2cd6b81f664753c25236270 *src/r-ext.c
 373058f34116b270dd6e07cc6e99a5de *src/r-ext.h
 b64426745242b69df117bff24a2cda7a *src/reader.c
 000c0f7fbdaa7c33390a4f79c6821fe5 *src/scanner.c
