@@ -417,12 +417,12 @@ R_yoink(vec, index)
     case INTSXP:
       if (factor) {
         levels = GET_LEVELS(vec);
-        level_idx = INTEGER(vec)[index] - 1;
-        if (level_idx < 0 || level_idx >= LENGTH(levels)) {
+        level_idx = INTEGER(vec)[index];
+        if (level_idx == NA_INTEGER || level_idx < 1 || level_idx > LENGTH(levels)) {
           SET_STRING_ELT(tmp, 0, NA_STRING);
         }
         else {
-          SET_STRING_ELT(tmp, 0, STRING_ELT(levels, level_idx));
+          SET_STRING_ELT(tmp, 0, STRING_ELT(levels, level_idx - 1));
         }
       }
       else {
@@ -490,7 +490,7 @@ static void
 stack_push(stack, placeholder, tag, obj)
   s_stack_entry **stack;
   int placeholder;
-  const char *tag;
+  const yaml_char_t *tag;
   s_prot_object *obj;
 {
   s_stack_entry *result;
@@ -629,7 +629,7 @@ handle_alias(event, stack, aliases)
 
 static int
 handle_start_event(tag, stack)
-  const char *tag;
+  const yaml_char_t *tag;
   s_stack_entry **stack;
 {
   stack_push(stack, 1, tag, new_prot_object(NULL));
@@ -653,7 +653,7 @@ convert_object(event_type, s_obj, tag, s_handlers, coerce_keys)
   ParseStatus parseStatus;
 
   /* Look for a custom R handler */
-  handler = find_handler(s_handlers, tag);
+  handler = find_handler(s_handlers, (const char *) tag);
   handled = 0;
   obj = s_obj->obj;
   new_obj = NULL;
@@ -1393,7 +1393,7 @@ load_yaml_str(s_str, s_use_named, s_handlers)
   yaml_parser_t parser;
   yaml_event_t event;
   const char *str, *name;
-  char *tag;
+  yaml_char_t *tag;
   long len;
   int use_named, i, done = 0, errorOccurred;
   s_stack_entry *stack = NULL;
@@ -1682,17 +1682,17 @@ emit_factor(emitter, event, obj)
 
   retval = 1;
   for (i = 0; i < length(obj); i++) {
-    level_idx = INTEGER(obj)[i] - 1;
-    if (level_idx < 0 || level_idx >= len) {
+    level_idx = INTEGER(obj)[i];
+    if (level_idx == NA_INTEGER || level_idx < 1 || level_idx > len) {
       level_chr = mkChar(".na.character");
       scalar_style = YAML_ANY_SCALAR_STYLE;
     }
     else {
-      level_chr = STRING_ELT(levels, level_idx);
-      if (!scalar_style_is_set[level_idx]) {
-        scalar_styles[level_idx] = R_string_style(level_chr);
+      level_chr = STRING_ELT(levels, level_idx - 1);
+      if (!scalar_style_is_set[level_idx - 1]) {
+        scalar_styles[level_idx - 1] = R_string_style(level_chr);
       }
-      scalar_style = scalar_styles[level_idx];
+      scalar_style = scalar_styles[level_idx - 1];
     }
 
     if (!emit_char(emitter, event, level_chr, NULL, 1, scalar_style)) {

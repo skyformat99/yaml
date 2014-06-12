@@ -1,12 +1,12 @@
 17f17ecffb6e67ff170511cbd1ddafac *COPYING
-c075ac52562eef790877ec06f87958ed *DESCRIPTION
+aa556058138c8da6cf8bc2eba21bab7a *DESCRIPTION
 5337609961f572ed04106f2c15194fca *LICENSE
 386131dc45ea829321445197322e41ac *NAMESPACE
 88710d36c1647ea5bf8ac3ed455cb6ac *R/as.yaml.R
 6afd5d2e4ec2e30595e0b59bb916ddc0 *R/yaml.load.R
 2e5d3ad2a9c22ea4393343fbd2fdf5c6 *R/yaml.load_file.R
 59d3ef441a03e63a67784ef7d111f8fe *R/zzz.R
-3aee8cfc03b9d197c1cc4e636e3b37d8 *inst/CHANGELOG
+67fb2e609b31f7716136c6a07aa22b81 *inst/CHANGELOG
 847f4d25cfbdd2d857847a728ff31ca8 *inst/THANKS
 8c2a09db7dcf19aea339fc0192f57faa *inst/implicit.re
 b70b0ade3126a031e5bf77d8aa9af4f2 *inst/tests/files/test.yml
@@ -22,7 +22,7 @@ abcf95521eeca0a9e350ed5c060d7ddb *src/emitter.c
 20fb70767318d50089c2c3151dca6667 *src/implicit.c
 c3ea5a68879f54f058c8bbfed18c55a0 *src/loader.c
 1a16662902d2e63e2af2470d0fe43794 *src/parser.c
-44cb4616b9e75f58311f811384a5ec4b *src/r-ext.c
+99c7a93650ae2246b53a5919f593bbaa *src/r-ext.c
 373058f34116b270dd6e07cc6e99a5de *src/r-ext.h
 095b4acfce41313fe01603812558230f *src/reader.c
 2b7277870ee184b0670c0fb9bee2c324 *src/scanner.c
