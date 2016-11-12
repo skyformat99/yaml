@@ -1595,6 +1595,8 @@ typedef struct yaml_emitter_s {
     int canonical;
     /** The number of indentation spaces. */
     int best_indent;
+    /** Whether or not to indent block sequences in mapping context. */
+    int indent_mapping_sequence;
     /** The preferred width of the output lines. */
     int best_width;
     /** Allow unescaped non-ASCII characters? */
@@ -1849,6 +1851,16 @@ yaml_emitter_set_canonical(yaml_emitter_t *emitter, int canonical);
 
 YAML_DECLARE(void)
 yaml_emitter_set_indent(yaml_emitter_t *emitter, int indent);
+
+/*
+ * Set whether or not to indent block sequences in mapping context.
+ *
+ * @param[in,out]   emitter                   An emitter object.
+ * @param[in]       indent_mapping_sequence   Boolean.
+ */
+
+YAML_DECLARE(void)
+yaml_emitter_set_indent_mapping_sequence(yaml_emitter_t *emitter, int indent_mapping_sequence);
 
 /**
  * Set the preferred line width. @c -1 means unlimited.

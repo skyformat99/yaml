@@ -415,7 +415,7 @@ yaml_string_write_handler(void *data, unsigned char *buffer, size_t size)
 {
     yaml_emitter_t *emitter = data;
 
-    if (emitter->output.string.size + *emitter->output.string.size_written
+    if (emitter->output.string.size - *emitter->output.string.size_written
             < size) {
         memcpy(emitter->output.string.buffer
                 + *emitter->output.string.size_written,
@@ -532,6 +532,18 @@ yaml_emitter_set_indent(yaml_emitter_t *emitter, int indent)
     assert(emitter);    /* Non-NULL emitter object expected. */
 
     emitter->best_indent = (1 < indent && indent < 10) ? indent : 2;
+}
+
+/*
+ * Set whether or not to indent block sequences in mapping context.
+ */
+
+YAML_DECLARE(void)
+yaml_emitter_set_indent_mapping_sequence(yaml_emitter_t *emitter, int indent_mapping_sequence)
+{
+    assert(emitter);    /* Non-NULL emitter object expected. */
+
+    emitter->indent_mapping_sequence = indent_mapping_sequence;
 }
 
 /*

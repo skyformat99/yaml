@@ -95,7 +95,7 @@ R_collapse(obj, collapse)
   SETCAR(pcall, R_PasteFunc); pcall = CDR(pcall);
   SETCAR(pcall, obj);         pcall = CDR(pcall);
   SETCAR(pcall, PROTECT(allocVector(STRSXP, 1)));
-  SET_STRING_ELT(CAR(pcall), 0, mkChar(collapse));
+  SET_STRING_ELT(CAR(pcall), 0, mkCharCE(collapse, CE_UTF8));
   SET_TAG(pcall, R_CollapseSymbol);
   retval = eval(call, R_GlobalEnv);
   UNPROTECT(2);
@@ -154,7 +154,7 @@ R_deparse_function(f)
   *tail = 0;
 
   PROTECT(result = allocVector(STRSXP, 1));
-  SET_STRING_ELT(result, 0, mkChar(head));
+  SET_STRING_ELT(result, 0, mkCharCE(head, CE_UTF8));
   UNPROTECT(1);
   free(head);
 
@@ -256,7 +256,7 @@ R_format_real(obj, precision)
         }
       }
 
-      SET_STRING_ELT(retval, i, mkChar(str));
+      SET_STRING_ELT(retval, i, mkCharCE(str, CE_UTF8));
     }
   }
   UNPROTECT(1);
@@ -319,7 +319,7 @@ R_format_string(obj)
   PROTECT(retval = duplicate(obj));
   for (i = 0; i < length(obj); i++) {
     if (STRING_ELT(obj, i) == NA_STRING) {
-      SET_STRING_ELT(retval, i, mkChar(".na.character"));
+      SET_STRING_ELT(retval, i, mkCharCE(".na.character", CE_UTF8));
     }
   }
   UNPROTECT(1);
@@ -336,7 +336,7 @@ R_set_str_attrib( obj, sym, str )
 {
   SEXP val;
   PROTECT(val = NEW_STRING(1));
-  SET_STRING_ELT(val, 0, mkChar(str));
+  SET_STRING_ELT(val, 0, mkCharCE(str, CE_UTF8));
   setAttrib(obj, sym, val);
   UNPROTECT(1);
 }
@@ -988,7 +988,7 @@ handle_scalar(event, stack, return_tag)
 #endif
 
   PROTECT(obj = NEW_STRING(1));
-  SET_STRING_ELT(obj, 0, mkChar((char *)value));
+  SET_STRING_ELT(obj, 0, mkCharCE((char *)value, CE_UTF8));
 
   stack_push(stack, 0, NULL, new_prot_object(obj));
   return 0;
@@ -1947,7 +1947,7 @@ emit_object(emitter, event, obj, tag, omap, column_major, precision)
 }
 
 SEXP
-as_yaml(s_obj, s_line_sep, s_indent, s_omap, s_column_major, s_unicode, s_precision)
+as_yaml(s_obj, s_line_sep, s_indent, s_omap, s_column_major, s_unicode, s_precision, s_indent_mapping_sequence)
   SEXP s_obj;
   SEXP s_line_sep;
   SEXP s_indent;
@@ -1955,12 +1955,13 @@ as_yaml(s_obj, s_line_sep, s_indent, s_omap, s_column_major, s_unicode, s_precis
   SEXP s_column_major;
   SEXP s_unicode;
   SEXP s_precision;
+  SEXP s_indent_mapping_sequence;
 {
   SEXP retval;
   yaml_emitter_t emitter;
   yaml_event_t event;
   s_emitter_output output;
-  int status, line_sep, indent, omap, column_major, unicode, precision;
+  int status, line_sep, indent, omap, column_major, unicode, precision, indent_mapping_sequence;
   const char *c_line_sep;
 
   c_line_sep = CHAR(STRING_ELT(s_line_sep, 0));
@@ -2030,10 +2031,17 @@ as_yaml(s_obj, s_line_sep, s_indent, s_omap, s_column_major, s_unicode, s_precis
     error("argument `precision` must be in the range 1..22");
   }
 
+  if (!isLogical(s_indent_mapping_sequence) || length(s_indent_mapping_sequence) != 1) {
+    error("argument `indent.mapping.sequence` must be either TRUE or FALSE");
+    return R_NilValue;
+  }
+  indent_mapping_sequence = LOGICAL(s_indent_mapping_sequence)[0];
+
   yaml_emitter_initialize(&emitter);
   yaml_emitter_set_unicode(&emitter, unicode);
   yaml_emitter_set_break(&emitter, line_sep);
   yaml_emitter_set_indent(&emitter, indent);
+  yaml_emitter_set_indent_mapping_sequence(&emitter, indent_mapping_sequence);
 
   output.buffer = NULL;
   output.size = output.capa = 0;
@@ -2088,7 +2096,7 @@ done:
 
 R_CallMethodDef callMethods[] = {
   {"yaml.load", (DL_FUNC)&load_yaml_str, 3},
-  {"as.yaml",   (DL_FUNC)&as_yaml,       7},
+  {"as.yaml",   (DL_FUNC)&as_yaml,       8},
   {NULL, NULL, 0}
 };
 
