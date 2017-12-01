@@ -2,23 +2,23 @@
 #line 1 "implicit.re"
 #include "yaml.h"
 
-yaml_char_t *
+char *
 find_implicit_tag(str, len)
-  const yaml_char_t *str;
+  const char *str;
   size_t len;
 {
   /* This bit was taken from implicit.re, which is in the Syck library.
    *
    * Copyright (C) 2003 why the lucky stiff */
 
-  const yaml_char_t *cursor, *limit, *marker;
+  const char *cursor, *limit, *marker;
   cursor = str;
   limit = str + len;
 
 
 #line 20 "implicit.c"
 {
-	yaml_char_t yych;
+	char yych;
 	yych = *cursor;
 	switch (yych) {
 	case 0x00:	goto yy2;
@@ -53,13 +53,13 @@ find_implicit_tag(str, len)
 yy2:
 	++cursor;
 #line 60 "implicit.re"
-	{   return (yaml_char_t *)"null"; }
+	{   return "null"; }
 #line 58 "implicit.c"
 yy4:
 	++cursor;
 yy5:
 #line 106 "implicit.re"
-	{   return (yaml_char_t *)"str"; }
+	{   return "str"; }
 #line 64 "implicit.c"
 yy6:
 	yych = *(marker = ++cursor);
@@ -96,38 +96,9 @@ yy7:
 yy8:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 'I':	goto yy30;
-	case 'N':	goto yy31;
-	case 'i':	goto yy32;
-	case 'n':	goto yy33;
-	default:	goto yy5;
-	}
-yy9:
-	yych = *(marker = ++cursor);
-	switch (yych) {
-	case 0x00:	goto yy34;
-	case ',':	goto yy36;
-	case '.':	goto yy38;
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':	goto yy40;
-	case '8':
-	case '9':	goto yy41;
-	case ':':	goto yy42;
-	case 'x':	goto yy43;
-	default:	goto yy5;
-	}
-yy10:
-	yych = *(marker = ++cursor);
-	switch (yych) {
-	case 0x00:	goto yy34;
-	case ',':	goto yy27;
-	case '.':	goto yy38;
+	case 0x00:	goto yy30;
+	case ',':	goto yy32;
+	case '.':	goto yy34;
 	case '0':
 	case '1':
 	case '2':
@@ -137,93 +108,137 @@ yy10:
 	case '6':
 	case '7':
 	case '8':
-	case '9':	goto yy44;
-	case ':':	goto yy42;
+	case '9':	goto yy36;
+	case 'E':
+	case 'e':	goto yy38;
+	case 'I':	goto yy39;
+	case 'N':	goto yy40;
+	case 'i':	goto yy41;
+	case 'n':	goto yy42;
+	default:	goto yy5;
+	}
+yy9:
+	yych = *(marker = ++cursor);
+	switch (yych) {
+	case 0x00:	goto yy43;
+	case ',':	goto yy45;
+	case '.':	goto yy36;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':	goto yy47;
+	case '8':
+	case '9':	goto yy48;
+	case ':':	goto yy49;
+	case 'x':	goto yy50;
+	default:	goto yy5;
+	}
+yy10:
+	yych = *(marker = ++cursor);
+	switch (yych) {
+	case 0x00:	goto yy43;
+	case ',':	goto yy27;
+	case '.':	goto yy36;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy51;
+	case ':':	goto yy49;
 	default:	goto yy5;
 	}
 yy11:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case '<':	goto yy45;
+	case '<':	goto yy52;
 	default:	goto yy5;
 	}
 yy12:
 	yych = *++cursor;
-	if (yych <= 0x00) goto yy46;
+	if (yych <= 0x00) goto yy53;
 	goto yy5;
 yy13:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 'A':	goto yy48;
-	case 'a':	goto yy49;
+	case 'A':	goto yy55;
+	case 'a':	goto yy56;
 	default:	goto yy5;
 	}
 yy14:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 0x00:	goto yy50;
+	case 0x00:	goto yy57;
 	case 'O':
-	case 'o':	goto yy52;
-	case 'U':	goto yy53;
-	case 'u':	goto yy54;
+	case 'o':	goto yy59;
+	case 'U':	goto yy60;
+	case 'u':	goto yy61;
 	default:	goto yy5;
 	}
 yy15:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 'F':	goto yy55;
+	case 'F':	goto yy62;
 	case 'N':
-	case 'n':	goto yy56;
-	case 'f':	goto yy57;
+	case 'n':	goto yy63;
+	case 'f':	goto yy64;
 	default:	goto yy5;
 	}
 yy16:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 'R':	goto yy58;
-	case 'r':	goto yy59;
+	case 'R':	goto yy65;
+	case 'r':	goto yy66;
 	default:	goto yy5;
 	}
 yy17:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 0x00:	goto yy60;
-	case 'E':	goto yy62;
-	case 'e':	goto yy63;
+	case 0x00:	goto yy67;
+	case 'E':	goto yy69;
+	case 'e':	goto yy70;
 	default:	goto yy5;
 	}
 yy18:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 'a':	goto yy49;
+	case 'a':	goto yy56;
 	default:	goto yy5;
 	}
 yy19:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 0x00:	goto yy50;
-	case 'o':	goto yy52;
-	case 'u':	goto yy54;
+	case 0x00:	goto yy57;
+	case 'o':	goto yy59;
+	case 'u':	goto yy61;
 	default:	goto yy5;
 	}
 yy20:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 'f':	goto yy57;
-	case 'n':	goto yy56;
+	case 'f':	goto yy64;
+	case 'n':	goto yy63;
 	default:	goto yy5;
 	}
 yy21:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 'r':	goto yy59;
+	case 'r':	goto yy66;
 	default:	goto yy5;
 	}
 yy22:
 	yych = *(marker = ++cursor);
 	switch (yych) {
-	case 0x00:	goto yy60;
-	case 'e':	goto yy63;
+	case 0x00:	goto yy67;
+	case 'e':	goto yy70;
 	default:	goto yy5;
 	}
 yy23:
@@ -233,9 +248,22 @@ yy23:
 yy24:
 	yych = *++cursor;
 	switch (yych) {
-	case 'I':	goto yy30;
-	case 'i':	goto yy32;
-	default:	goto yy25;
+	case '.':	goto yy34;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy36;
+	case 'E':
+	case 'e':	goto yy38;
+	case 'I':	goto yy39;
+	case 'i':	goto yy41;
+	default:	goto yy33;
 	}
 yy25:
 	cursor = marker;
@@ -243,16 +271,16 @@ yy25:
 yy26:
 	yych = *++cursor;
 	switch (yych) {
-	case 0x00:	goto yy34;
-	case 'x':	goto yy43;
-	default:	goto yy37;
+	case 0x00:	goto yy43;
+	case 'x':	goto yy50;
+	default:	goto yy46;
 	}
 yy27:
 	++cursor;
 	yych = *cursor;
 yy28:
 	switch (yych) {
-	case 0x00:	goto yy34;
+	case 0x00:	goto yy43;
 	case ',':
 	case '0':
 	case '1':
@@ -264,330 +292,55 @@ yy28:
 	case '7':
 	case '8':
 	case '9':	goto yy27;
-	case '.':	goto yy38;
-	case ':':	goto yy42;
+	case '.':	goto yy36;
+	case ':':	goto yy49;
 	default:	goto yy25;
 	}
 yy29:
 	yych = *++cursor;
 	switch (yych) {
-	case 'I':	goto yy66;
-	case 'i':	goto yy67;
-	default:	goto yy25;
+	case '.':	goto yy34;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy36;
+	case 'E':
+	case 'e':	goto yy38;
+	case 'I':	goto yy73;
+	case 'i':	goto yy74;
+	default:	goto yy33;
 	}
 yy30:
-	yych = *++cursor;
-	switch (yych) {
-	case 'N':	goto yy68;
-	case 'n':	goto yy69;
-	default:	goto yy25;
-	}
-yy31:
-	yych = *++cursor;
-	switch (yych) {
-	case 'A':
-	case 'a':	goto yy70;
-	default:	goto yy25;
-	}
+	++cursor;
+#line 78 "implicit.re"
+	{   return "float#fix"; }
+#line 324 "implicit.c"
 yy32:
-	yych = *++cursor;
-	switch (yych) {
-	case 'n':	goto yy69;
-	default:	goto yy25;
-	}
+	++cursor;
+	yych = *cursor;
 yy33:
-	yych = *++cursor;
 	switch (yych) {
-	case 'a':	goto yy71;
+	case 0x00:	goto yy30;
+	case ',':
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy32;
 	default:	goto yy25;
 	}
 yy34:
-	++cursor;
-#line 76 "implicit.re"
-	{   return (yaml_char_t *)"int"; }
-#line 309 "implicit.c"
-yy36:
-	++cursor;
-	yych = *cursor;
-yy37:
-	switch (yych) {
-	case 0x00:	goto yy72;
-	case ',':
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':	goto yy36;
-	case '.':	goto yy38;
-	case '8':
-	case '9':	goto yy64;
-	case ':':	goto yy42;
-	default:	goto yy25;
-	}
-yy38:
-	++cursor;
-	yych = *cursor;
-	switch (yych) {
-	case 0x00:	goto yy74;
-	case ',':	goto yy76;
-	case '.':	goto yy78;
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy38;
-	case 'E':
-	case 'e':	goto yy80;
-	default:	goto yy25;
-	}
-yy40:
-	yych = *++cursor;
-	switch (yych) {
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':	goto yy81;
-	case '8':
-	case '9':	goto yy82;
-	default:	goto yy37;
-	}
-yy41:
-	yych = *++cursor;
-	switch (yych) {
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy82;
-	default:	goto yy65;
-	}
-yy42:
-	++cursor;
-	yych = *cursor;
-	switch (yych) {
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':	goto yy83;
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy84;
-	default:	goto yy25;
-	}
-yy43:
-	yych = *++cursor;
-	if (yych <= 0x00) goto yy25;
-	goto yy86;
-yy44:
-	yych = *++cursor;
-	switch (yych) {
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy87;
-	default:	goto yy28;
-	}
-yy45:
-	yych = *++cursor;
-	if (yych <= 0x00) goto yy88;
-	goto yy25;
-yy46:
-	++cursor;
-#line 102 "implicit.re"
-	{   return (yaml_char_t *)"default"; }
-#line 425 "implicit.c"
-yy48:
-	yych = *++cursor;
-	switch (yych) {
-	case 'L':	goto yy90;
-	default:	goto yy25;
-	}
-yy49:
-	yych = *++cursor;
-	switch (yych) {
-	case 'l':	goto yy91;
-	default:	goto yy25;
-	}
-yy50:
-	++cursor;
-#line 64 "implicit.re"
-	{   return (yaml_char_t *)"bool#no"; }
-#line 442 "implicit.c"
-yy52:
-	yych = *++cursor;
-	if (yych <= 0x00) goto yy50;
-	goto yy25;
-yy53:
-	yych = *++cursor;
-	switch (yych) {
-	case 'L':	goto yy92;
-	default:	goto yy25;
-	}
-yy54:
-	yych = *++cursor;
-	switch (yych) {
-	case 'l':	goto yy93;
-	default:	goto yy25;
-	}
-yy55:
-	yych = *++cursor;
-	switch (yych) {
-	case 'F':	goto yy52;
-	default:	goto yy25;
-	}
-yy56:
-	yych = *++cursor;
-	if (yych <= 0x00) goto yy60;
-	goto yy25;
-yy57:
-	yych = *++cursor;
-	switch (yych) {
-	case 'f':	goto yy52;
-	default:	goto yy25;
-	}
-yy58:
-	yych = *++cursor;
-	switch (yych) {
-	case 'U':	goto yy94;
-	default:	goto yy25;
-	}
-yy59:
-	yych = *++cursor;
-	switch (yych) {
-	case 'u':	goto yy95;
-	default:	goto yy25;
-	}
-yy60:
-	++cursor;
-#line 62 "implicit.re"
-	{   return (yaml_char_t *)"bool#yes"; }
-#line 491 "implicit.c"
-yy62:
-	yych = *++cursor;
-	switch (yych) {
-	case 'S':	goto yy56;
-	default:	goto yy25;
-	}
-yy63:
-	yych = *++cursor;
-	switch (yych) {
-	case 's':	goto yy56;
-	default:	goto yy25;
-	}
-yy64:
-	++cursor;
-	yych = *cursor;
-yy65:
-	switch (yych) {
-	case ',':
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy64;
-	case '.':	goto yy38;
-	case ':':	goto yy42;
-	default:	goto yy25;
-	}
-yy66:
-	yych = *++cursor;
-	switch (yych) {
-	case 'N':	goto yy96;
-	case 'n':	goto yy97;
-	default:	goto yy25;
-	}
-yy67:
-	yych = *++cursor;
-	switch (yych) {
-	case 'n':	goto yy97;
-	default:	goto yy25;
-	}
-yy68:
-	yych = *++cursor;
-	switch (yych) {
-	case 'F':	goto yy98;
-	default:	goto yy25;
-	}
-yy69:
-	yych = *++cursor;
-	switch (yych) {
-	case 'f':	goto yy98;
-	default:	goto yy25;
-	}
-yy70:
-	yych = *++cursor;
-	switch (yych) {
-	case 'N':	goto yy99;
-	default:	goto yy25;
-	}
-yy71:
-	yych = *++cursor;
-	switch (yych) {
-	case 0x00:	goto yy100;
-	case '.':	goto yy102;
-	case 'n':	goto yy99;
-	default:	goto yy25;
-	}
-yy72:
-	++cursor;
-#line 70 "implicit.re"
-	{   return (yaml_char_t *)"int#oct"; }
-#line 567 "implicit.c"
-yy74:
-	++cursor;
-#line 78 "implicit.re"
-	{   return (yaml_char_t *)"float#fix"; }
-#line 572 "implicit.c"
-yy76:
-	++cursor;
-	yych = *cursor;
-	switch (yych) {
-	case 0x00:	goto yy74;
-	case ',':
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy76;
-	default:	goto yy25;
-	}
-yy78:
 	++cursor;
 	yych = *cursor;
 	switch (yych) {
@@ -601,19 +354,92 @@ yy78:
 	case '6':
 	case '7':
 	case '8':
-	case '9':	goto yy78;
+	case '9':	goto yy34;
 	case 'E':
-	case 'e':	goto yy80;
+	case 'e':	goto yy38;
 	default:	goto yy25;
 	}
-yy80:
+yy36:
+	++cursor;
+	yych = *cursor;
+	switch (yych) {
+	case 0x00:	goto yy30;
+	case ',':	goto yy32;
+	case '.':	goto yy34;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy36;
+	case 'E':
+	case 'e':	goto yy38;
+	default:	goto yy25;
+	}
+yy38:
 	yych = *++cursor;
 	switch (yych) {
 	case '+':
-	case '-':	goto yy103;
+	case '-':	goto yy75;
 	default:	goto yy25;
 	}
-yy81:
+yy39:
+	yych = *++cursor;
+	switch (yych) {
+	case 'N':	goto yy76;
+	case 'n':	goto yy77;
+	default:	goto yy25;
+	}
+yy40:
+	yych = *++cursor;
+	switch (yych) {
+	case 'A':
+	case 'a':	goto yy78;
+	default:	goto yy25;
+	}
+yy41:
+	yych = *++cursor;
+	switch (yych) {
+	case 'n':	goto yy77;
+	default:	goto yy25;
+	}
+yy42:
+	yych = *++cursor;
+	switch (yych) {
+	case 'a':	goto yy79;
+	default:	goto yy25;
+	}
+yy43:
+	++cursor;
+#line 76 "implicit.re"
+	{   return "int"; }
+#line 421 "implicit.c"
+yy45:
+	++cursor;
+	yych = *cursor;
+yy46:
+	switch (yych) {
+	case 0x00:	goto yy80;
+	case ',':
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':	goto yy45;
+	case '.':	goto yy36;
+	case '8':
+	case '9':	goto yy71;
+	case ':':	goto yy49;
+	default:	goto yy25;
+	}
+yy47:
 	yych = *++cursor;
 	switch (yych) {
 	case '0':
@@ -623,11 +449,216 @@ yy81:
 	case '4':
 	case '5':
 	case '6':
-	case '7':	goto yy104;
+	case '7':	goto yy82;
 	case '8':
-	case '9':	goto yy105;
-	default:	goto yy37;
+	case '9':	goto yy83;
+	default:	goto yy46;
 	}
+yy48:
+	yych = *++cursor;
+	switch (yych) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy83;
+	default:	goto yy72;
+	}
+yy49:
+	++cursor;
+	yych = *cursor;
+	switch (yych) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':	goto yy84;
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy85;
+	default:	goto yy25;
+	}
+yy50:
+	yych = *++cursor;
+	if (yych <= 0x00) goto yy25;
+	goto yy87;
+yy51:
+	yych = *++cursor;
+	switch (yych) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy88;
+	default:	goto yy28;
+	}
+yy52:
+	yych = *++cursor;
+	if (yych <= 0x00) goto yy89;
+	goto yy25;
+yy53:
+	++cursor;
+#line 102 "implicit.re"
+	{   return "default"; }
+#line 516 "implicit.c"
+yy55:
+	yych = *++cursor;
+	switch (yych) {
+	case 'L':	goto yy91;
+	default:	goto yy25;
+	}
+yy56:
+	yych = *++cursor;
+	switch (yych) {
+	case 'l':	goto yy92;
+	default:	goto yy25;
+	}
+yy57:
+	++cursor;
+#line 64 "implicit.re"
+	{   return "bool#no"; }
+#line 533 "implicit.c"
+yy59:
+	yych = *++cursor;
+	if (yych <= 0x00) goto yy57;
+	goto yy25;
+yy60:
+	yych = *++cursor;
+	switch (yych) {
+	case 'L':	goto yy93;
+	default:	goto yy25;
+	}
+yy61:
+	yych = *++cursor;
+	switch (yych) {
+	case 'l':	goto yy94;
+	default:	goto yy25;
+	}
+yy62:
+	yych = *++cursor;
+	switch (yych) {
+	case 'F':	goto yy59;
+	default:	goto yy25;
+	}
+yy63:
+	yych = *++cursor;
+	if (yych <= 0x00) goto yy67;
+	goto yy25;
+yy64:
+	yych = *++cursor;
+	switch (yych) {
+	case 'f':	goto yy59;
+	default:	goto yy25;
+	}
+yy65:
+	yych = *++cursor;
+	switch (yych) {
+	case 'U':	goto yy95;
+	default:	goto yy25;
+	}
+yy66:
+	yych = *++cursor;
+	switch (yych) {
+	case 'u':	goto yy96;
+	default:	goto yy25;
+	}
+yy67:
+	++cursor;
+#line 62 "implicit.re"
+	{   return "bool#yes"; }
+#line 582 "implicit.c"
+yy69:
+	yych = *++cursor;
+	switch (yych) {
+	case 'S':	goto yy63;
+	default:	goto yy25;
+	}
+yy70:
+	yych = *++cursor;
+	switch (yych) {
+	case 's':	goto yy63;
+	default:	goto yy25;
+	}
+yy71:
+	++cursor;
+	yych = *cursor;
+yy72:
+	switch (yych) {
+	case ',':
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy71;
+	case '.':	goto yy36;
+	case ':':	goto yy49;
+	default:	goto yy25;
+	}
+yy73:
+	yych = *++cursor;
+	switch (yych) {
+	case 'N':	goto yy97;
+	case 'n':	goto yy98;
+	default:	goto yy25;
+	}
+yy74:
+	yych = *++cursor;
+	switch (yych) {
+	case 'n':	goto yy98;
+	default:	goto yy25;
+	}
+yy75:
+	yych = *++cursor;
+	if (yych <= 0x00) goto yy25;
+	goto yy100;
+yy76:
+	yych = *++cursor;
+	switch (yych) {
+	case 'F':	goto yy101;
+	default:	goto yy25;
+	}
+yy77:
+	yych = *++cursor;
+	switch (yych) {
+	case 'f':	goto yy101;
+	default:	goto yy25;
+	}
+yy78:
+	yych = *++cursor;
+	switch (yych) {
+	case 'N':	goto yy102;
+	default:	goto yy25;
+	}
+yy79:
+	yych = *++cursor;
+	switch (yych) {
+	case 0x00:	goto yy103;
+	case '.':	goto yy105;
+	case 'n':	goto yy102;
+	default:	goto yy25;
+	}
+yy80:
+	++cursor;
+#line 70 "implicit.re"
+	{   return "int#oct"; }
+#line 662 "implicit.c"
 yy82:
 	yych = *++cursor;
 	switch (yych) {
@@ -638,17 +669,14 @@ yy82:
 	case '4':
 	case '5':
 	case '6':
-	case '7':
+	case '7':	goto yy106;
 	case '8':
-	case '9':	goto yy105;
-	default:	goto yy65;
+	case '9':	goto yy107;
+	default:	goto yy46;
 	}
 yy83:
-	++cursor;
-	yych = *cursor;
+	yych = *++cursor;
 	switch (yych) {
-	case 0x00:	goto yy106;
-	case '.':	goto yy108;
 	case '0':
 	case '1':
 	case '2':
@@ -658,25 +686,43 @@ yy83:
 	case '6':
 	case '7':
 	case '8':
-	case '9':	goto yy84;
-	case ':':	goto yy42;
-	default:	goto yy25;
+	case '9':	goto yy107;
+	default:	goto yy72;
 	}
 yy84:
 	++cursor;
 	yych = *cursor;
 	switch (yych) {
-	case 0x00:	goto yy106;
-	case '.':	goto yy108;
-	case ':':	goto yy42;
+	case 0x00:	goto yy108;
+	case '.':	goto yy110;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy85;
+	case ':':	goto yy49;
 	default:	goto yy25;
 	}
 yy85:
 	++cursor;
 	yych = *cursor;
-yy86:
 	switch (yych) {
-	case 0x00:	goto yy110;
+	case 0x00:	goto yy108;
+	case '.':	goto yy110;
+	case ':':	goto yy49;
+	default:	goto yy25;
+	}
+yy86:
+	++cursor;
+	yych = *cursor;
+yy87:
+	switch (yych) {
+	case 0x00:	goto yy112;
 	case ',':
 	case '0':
 	case '1':
@@ -699,10 +745,10 @@ yy86:
 	case 'c':
 	case 'd':
 	case 'e':
-	case 'f':	goto yy85;
+	case 'f':	goto yy86;
 	default:	goto yy25;
 	}
-yy87:
+yy88:
 	yych = *++cursor;
 	switch (yych) {
 	case '0':
@@ -714,109 +760,123 @@ yy87:
 	case '6':
 	case '7':
 	case '8':
-	case '9':	goto yy112;
+	case '9':	goto yy114;
 	default:	goto yy28;
 	}
-yy88:
+yy89:
 	++cursor;
 #line 104 "implicit.re"
-	{   return (yaml_char_t *)"merge"; }
-#line 725 "implicit.c"
-yy90:
-	yych = *++cursor;
-	switch (yych) {
-	case 'S':	goto yy113;
-	default:	goto yy25;
-	}
+	{   return "merge"; }
+#line 771 "implicit.c"
 yy91:
 	yych = *++cursor;
 	switch (yych) {
-	case 's':	goto yy114;
+	case 'S':	goto yy115;
 	default:	goto yy25;
 	}
 yy92:
 	yych = *++cursor;
 	switch (yych) {
-	case 'L':	goto yy115;
+	case 's':	goto yy116;
 	default:	goto yy25;
 	}
 yy93:
 	yych = *++cursor;
 	switch (yych) {
-	case 'l':	goto yy115;
+	case 'L':	goto yy117;
 	default:	goto yy25;
 	}
 yy94:
 	yych = *++cursor;
 	switch (yych) {
-	case 'E':	goto yy56;
+	case 'l':	goto yy117;
 	default:	goto yy25;
 	}
 yy95:
 	yych = *++cursor;
 	switch (yych) {
-	case 'e':	goto yy56;
+	case 'E':	goto yy63;
 	default:	goto yy25;
 	}
 yy96:
 	yych = *++cursor;
 	switch (yych) {
-	case 'F':	goto yy116;
+	case 'e':	goto yy63;
 	default:	goto yy25;
 	}
 yy97:
 	yych = *++cursor;
 	switch (yych) {
-	case 'f':	goto yy116;
+	case 'F':	goto yy118;
 	default:	goto yy25;
 	}
 yy98:
 	yych = *++cursor;
-	if (yych <= 0x00) goto yy117;
-	goto yy25;
-yy99:
-	yych = *++cursor;
-	if (yych <= 0x00) goto yy119;
-	goto yy25;
-yy100:
-	++cursor;
-#line 66 "implicit.re"
-	{   return (yaml_char_t *)"bool#na"; }
-#line 786 "implicit.c"
-yy102:
-	yych = *++cursor;
 	switch (yych) {
-	case 'c':	goto yy121;
-	case 'i':	goto yy122;
-	case 'r':	goto yy123;
+	case 'f':	goto yy118;
 	default:	goto yy25;
 	}
-yy103:
-	yych = *++cursor;
-	if (yych <= 0x00) goto yy25;
-	goto yy125;
-yy104:
-	yych = *++cursor;
+yy99:
+	++cursor;
+	yych = *cursor;
+yy100:
 	switch (yych) {
-	case '-':	goto yy126;
-	default:	goto yy37;
+	case 0x00:	goto yy119;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy99;
+	default:	goto yy25;
 	}
+yy101:
+	yych = *++cursor;
+	if (yych <= 0x00) goto yy121;
+	goto yy25;
+yy102:
+	yych = *++cursor;
+	if (yych <= 0x00) goto yy123;
+	goto yy25;
+yy103:
+	++cursor;
+#line 66 "implicit.re"
+	{   return "bool#na"; }
+#line 850 "implicit.c"
 yy105:
 	yych = *++cursor;
 	switch (yych) {
-	case '-':	goto yy126;
-	default:	goto yy65;
+	case 'c':	goto yy125;
+	case 'i':	goto yy126;
+	case 'r':	goto yy127;
+	default:	goto yy25;
 	}
 yy106:
+	yych = *++cursor;
+	switch (yych) {
+	case '-':	goto yy128;
+	default:	goto yy46;
+	}
+yy107:
+	yych = *++cursor;
+	switch (yych) {
+	case '-':	goto yy128;
+	default:	goto yy72;
+	}
+yy108:
 	++cursor;
 #line 72 "implicit.re"
-	{   return (yaml_char_t *)"int#base60"; }
-#line 815 "implicit.c"
-yy108:
+	{   return "int#base60"; }
+#line 875 "implicit.c"
+yy110:
 	++cursor;
 	yych = *cursor;
 	switch (yych) {
-	case 0x00:	goto yy127;
+	case 0x00:	goto yy129;
 	case ',':
 	case '0':
 	case '1':
@@ -827,87 +887,74 @@ yy108:
 	case '6':
 	case '7':
 	case '8':
-	case '9':	goto yy108;
+	case '9':	goto yy110;
 	default:	goto yy25;
 	}
-yy110:
+yy112:
 	++cursor;
 #line 68 "implicit.re"
-	{   return (yaml_char_t *)"int#hex"; }
-#line 838 "implicit.c"
-yy112:
-	yych = *++cursor;
-	switch (yych) {
-	case '-':	goto yy126;
-	default:	goto yy28;
-	}
-yy113:
-	yych = *++cursor;
-	switch (yych) {
-	case 'E':	goto yy52;
-	default:	goto yy25;
-	}
+	{   return "int#hex"; }
+#line 898 "implicit.c"
 yy114:
 	yych = *++cursor;
 	switch (yych) {
-	case 'e':	goto yy52;
-	default:	goto yy25;
+	case '-':	goto yy128;
+	default:	goto yy28;
 	}
 yy115:
 	yych = *++cursor;
-	if (yych <= 0x00) goto yy2;
-	goto yy25;
+	switch (yych) {
+	case 'E':	goto yy59;
+	default:	goto yy25;
+	}
 yy116:
 	yych = *++cursor;
-	if (yych <= 0x00) goto yy129;
-	goto yy25;
+	switch (yych) {
+	case 'e':	goto yy59;
+	default:	goto yy25;
+	}
 yy117:
-	++cursor;
-#line 84 "implicit.re"
-	{   return (yaml_char_t *)"float#inf"; }
-#line 869 "implicit.c"
+	yych = *++cursor;
+	if (yych <= 0x00) goto yy2;
+	goto yy25;
+yy118:
+	yych = *++cursor;
+	if (yych <= 0x00) goto yy131;
+	goto yy25;
 yy119:
 	++cursor;
-#line 88 "implicit.re"
-	{   return (yaml_char_t *)"float#nan"; }
-#line 874 "implicit.c"
+#line 80 "implicit.re"
+	{   return "float#exp"; }
+#line 929 "implicit.c"
 yy121:
-	yych = *++cursor;
-	switch (yych) {
-	case 'h':	goto yy131;
-	default:	goto yy25;
-	}
-yy122:
-	yych = *++cursor;
-	switch (yych) {
-	case 'n':	goto yy132;
-	default:	goto yy25;
-	}
-yy123:
-	yych = *++cursor;
-	switch (yych) {
-	case 'e':	goto yy133;
-	default:	goto yy25;
-	}
-yy124:
 	++cursor;
-	yych = *cursor;
+#line 84 "implicit.re"
+	{   return "float#inf"; }
+#line 934 "implicit.c"
+yy123:
+	++cursor;
+#line 88 "implicit.re"
+	{   return "float#nan"; }
+#line 939 "implicit.c"
 yy125:
+	yych = *++cursor;
 	switch (yych) {
-	case 0x00:	goto yy134;
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy124;
+	case 'h':	goto yy133;
 	default:	goto yy25;
 	}
 yy126:
+	yych = *++cursor;
+	switch (yych) {
+	case 'n':	goto yy134;
+	default:	goto yy25;
+	}
+yy127:
+	yych = *++cursor;
+	switch (yych) {
+	case 'e':	goto yy135;
+	default:	goto yy25;
+	}
+yy128:
 	yych = *++cursor;
 	switch (yych) {
 	case '0':
@@ -922,39 +969,34 @@ yy126:
 	case '9':	goto yy136;
 	default:	goto yy25;
 	}
-yy127:
-	++cursor;
-#line 82 "implicit.re"
-	{   return (yaml_char_t *)"float#base60"; }
-#line 930 "implicit.c"
 yy129:
 	++cursor;
-#line 86 "implicit.re"
-	{   return (yaml_char_t *)"float#neginf"; }
-#line 935 "implicit.c"
+#line 82 "implicit.re"
+	{   return "float#base60"; }
+#line 977 "implicit.c"
 yy131:
+	++cursor;
+#line 86 "implicit.re"
+	{   return "float#neginf"; }
+#line 982 "implicit.c"
+yy133:
 	yych = *++cursor;
 	switch (yych) {
 	case 'a':	goto yy137;
 	default:	goto yy25;
 	}
-yy132:
+yy134:
 	yych = *++cursor;
 	switch (yych) {
 	case 't':	goto yy138;
 	default:	goto yy25;
 	}
-yy133:
+yy135:
 	yych = *++cursor;
 	switch (yych) {
 	case 'a':	goto yy139;
 	default:	goto yy25;
 	}
-yy134:
-	++cursor;
-#line 80 "implicit.re"
-	{   return (yaml_char_t *)"float#exp"; }
-#line 958 "implicit.c"
 yy136:
 	yych = *++cursor;
 	switch (yych) {
@@ -1040,8 +1082,8 @@ yy146:
 yy147:
 	++cursor;
 #line 90 "implicit.re"
-	{   return (yaml_char_t *)"float#na"; }
-#line 1045 "implicit.c"
+	{   return "float#na"; }
+#line 1087 "implicit.c"
 yy149:
 	yych = *++cursor;
 	switch (yych) {
@@ -1100,8 +1142,8 @@ yy154:
 yy155:
 	++cursor;
 #line 92 "implicit.re"
-	{   return (yaml_char_t *)"timestamp#ymd"; }
-#line 1105 "implicit.c"
+	{   return "timestamp#ymd"; }
+#line 1147 "implicit.c"
 yy157:
 	++cursor;
 	yych = *cursor;
@@ -1145,8 +1187,8 @@ yy160:
 yy161:
 	++cursor;
 #line 74 "implicit.re"
-	{   return (yaml_char_t *)"int#na"; }
-#line 1150 "implicit.c"
+	{   return "int#na"; }
+#line 1192 "implicit.c"
 yy163:
 	yych = *++cursor;
 	switch (yych) {
@@ -1196,8 +1238,8 @@ yy167:
 yy168:
 	++cursor;
 #line 100 "implicit.re"
-	{   return (yaml_char_t *)"str#na"; }
-#line 1201 "implicit.c"
+	{   return "str#na"; }
+#line 1243 "implicit.c"
 yy170:
 	yych = *++cursor;
 	switch (yych) {
@@ -1459,8 +1501,8 @@ yy192:
 yy193:
 	++cursor;
 #line 94 "implicit.re"
-	{   return (yaml_char_t *)"timestamp#iso8601"; }
-#line 1464 "implicit.c"
+	{   return "timestamp#iso8601"; }
+#line 1506 "implicit.c"
 yy195:
 	yych = *++cursor;
 	switch (yych) {
@@ -1479,8 +1521,8 @@ yy195:
 yy196:
 	++cursor;
 #line 96 "implicit.re"
-	{   return (yaml_char_t *)"timestamp#spaced"; }
-#line 1484 "implicit.c"
+	{   return "timestamp#spaced"; }
+#line 1526 "implicit.c"
 yy198:
 	yych = *++cursor;
 	switch (yych) {

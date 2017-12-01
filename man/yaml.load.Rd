@@ -7,15 +7,16 @@
   Parse a YAML string and return R objects.
 }
 \usage{
-  yaml.load(string, as.named.list = TRUE, handlers = NULL)
-  yaml.load_file(input, ...)
+  yaml.load(string, as.named.list = TRUE, handlers = NULL, error.label = NULL)
+  yaml.load_file(input, error.label, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{string}{ the YAML string to be parsed }
   \item{as.named.list}{ whether or not to return a named list for maps (TRUE by default) }
   \item{handlers}{ named list of custom handler functions for YAML types (see Details). }
-  \item{input}{ a filename or connection }
+  \item{input}{ a filename or connection. If \code{input} is a filename, that file must be encoded in UTF-8. }
+  \item{error.label}{ a label to prepend to error messages (see Details). }
   \item{...}{ arguments to pass to yaml.load }
 }
 \details{
@@ -23,7 +24,7 @@
   \code{yaml.load_file}, which calls \code{yaml.load} with the contents of the specified
   file or connection.
 
-  Sequences of uniform data (i.e. a sequence of integers) are converted into vectors.  If
+  Sequences of uniform data (e.g. a sequence of integers) are converted into vectors.  If
   the sequence is not uniform, it's returned as a list. Maps are converted into named lists
   by default, and all the keys in the map are converted to strings.  If you don't want the
   keys to be coerced into strings, set \code{as.named.list} to FALSE.  When it's FALSE, a
@@ -38,6 +39,15 @@
   Custom map functions will be passed the object that the internal map handler creates, which
   is either a named list or a list with a 'keys' attribute (depending on \code{as.named.list}).
   ALL functions you provide must return an object.  See the examples for custom handler use.
+
+  You can specify a label to be prepended to error messages via the
+  \code{error.label} argument.  When using \code{yaml.load_file}, you can
+  either set the \code{error.label} argument explicitly or leave it missing.
+  If missing, \code{yaml.load_file} will make an educated guess for the value
+  of \code{error.label} by either using the specified filename (when
+  \code{input} is a character vector) or using the description of the supplied
+  connection object (via the \code{summary} function).  You can explicity set
+  \code{error.label} to \code{NULL} if you don't want to use this functionality.
 
   This function uses the YAML parser provided by libyaml, which conforms to the YAML 1.1
   specification.
@@ -83,8 +93,12 @@
   yaml.load("!bar\none: 1\ntwo: 2", handlers=list(foo=function(x) { x$one <- "one"; x }))
 
   # loading R expressions
+  # NOTE: this will not be done by default in the near future
   doc <- yaml.load("inc: !expr function(x) x + 1")
   doc$inc(1)
+
+  # adding a label to error messages
+  try(yaml.load("*", error.label = "foo"))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
