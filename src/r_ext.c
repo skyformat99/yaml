@@ -6,6 +6,10 @@ SEXP R_FormatFunc = NULL;
 SEXP R_PasteFunc = NULL;
 SEXP R_CollapseSymbol = NULL;
 SEXP R_DeparseFunc = NULL;
+SEXP R_Sentinel = NULL;
+SEXP R_SequenceStart = NULL;
+SEXP R_MappingStart = NULL;
+SEXP R_MappingEnd = NULL;
 char error_msg[ERROR_MSG_SIZE];
 
 void
@@ -82,21 +86,26 @@ R_inspect(obj)
 
 /* Return 1 if obj is of the specified class */
 int
-R_has_class(obj, name)
-  SEXP obj;
+R_has_class(s_obj, name)
+  SEXP s_obj;
   char *name;
 {
-  int i;
-  SEXP class = GET_CLASS(obj);
-  if (TYPEOF(class) == STRSXP) {
-    for (i = 0; i < length(class); i++) {
-      if (strcmp(CHAR(STRING_ELT(GET_CLASS(obj), i)), name) == 0) {
-        return 1;
+  SEXP s_class = NULL;
+  int i = 0, len = 0, result = 0;
+
+  PROTECT(s_obj);
+  PROTECT(s_class = GET_CLASS(s_obj));
+  if (TYPEOF(s_class) == STRSXP) {
+    len = length(s_class);
+    for (i = 0; i < len; i++) {
+      if (strcmp(CHAR(STRING_ELT(s_class, i)), name) == 0) {
+        result = 1;
+        break;
       }
     }
   }
-
-  return 0;
+  UNPROTECT(2);
+  return result;
 }
 
 R_CallMethodDef callMethods[] = {
@@ -112,6 +121,10 @@ void R_init_yaml(DllInfo *dll) {
   R_FormatFunc = findFun(install("format"), R_GlobalEnv);
   R_PasteFunc = findFun(install("paste"), R_GlobalEnv);
   R_DeparseFunc = findFun(install("deparse"), R_GlobalEnv);
+  R_Sentinel = install("sentinel");
+  R_SequenceStart = install("sequence.start");
+  R_MappingStart = install("mapping.start");
+  R_MappingEnd = install("mapping.end");
   R_registerRoutines(dll, NULL, callMethods, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
   R_forceSymbols(dll, TRUE);
