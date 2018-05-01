@@ -261,6 +261,11 @@ test_that("custom int oct handler is applied", {
   expect_equal("argh!", x)
 })
 
+test_that("int base60 is not coerced by default", {
+  x <- yaml.load("1:20")
+  expect_equal("1:20", x)
+})
+
 test_that("custom int base60 handler is applied", {
   x <- yaml.load("1:20", handlers=list("int#base60"=function(x) { "argh!" }))
   expect_equal("argh!", x)
@@ -396,13 +401,27 @@ test_that("invalid omap causes error", {
     throws_error())
 })
 
-test_that("expressions are converted", {
+test_that("expressions are implicitly converted with warning", {
   warnings <- capture_warnings({
     x <- yaml.load("!expr |\n  function() \n  {\n    'hey!'\n  }")
   })
   expect_equal("function", class(x))
   expect_equal("hey!", x())
   expect_equal("R expressions in yaml.load will not be auto-evaluated by default in the near future", warnings)
+})
+
+test_that("expressions are explicitly converted without warning", {
+  warnings <- capture_warnings({
+    x <- yaml.load("!expr |\n  function() \n  {\n    'hey!'\n  }", eval.expr = TRUE)
+  })
+  expect_equal("function", class(x))
+  expect_equal("hey!", x())
+  expect_equal(0, length(warnings))
+})
+
+test_that("expressions are explicitly not converted", {
+  x <- yaml.load("!expr 123 + 456", eval.expr = FALSE)
+  expect_equal("123 + 456", x)
 })
 
 test_that("invalid expressions cause error", {

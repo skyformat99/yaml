@@ -1,17 +1,17 @@
 #include "r_ext.h"
 
-extern SEXP R_KeysSymbol;
-extern SEXP R_IdenticalFunc;
-extern SEXP R_Sentinel;
-extern SEXP R_SequenceStart;
-extern SEXP R_MappingStart;
-extern SEXP R_MappingEnd;
+extern SEXP Ryaml_KeysSymbol;
+extern SEXP Ryaml_IdenticalFunc;
+extern SEXP Ryaml_Sentinel;
+extern SEXP Ryaml_SequenceStart;
+extern SEXP Ryaml_MappingStart;
+extern SEXP Ryaml_MappingEnd;
 extern char error_msg[ERROR_MSG_SIZE];
 
 /* Compare two R objects (with the R identical function).
  * Returns 0 or 1 */
 static int
-R_cmp(s_first, s_second)
+Ryaml_cmp(s_first, s_second)
   SEXP s_first;
   SEXP s_second;
 {
@@ -20,7 +20,7 @@ R_cmp(s_first, s_second)
 
   PROTECT(s_bool = allocVector(LGLSXP, 1));
   LOGICAL(s_bool)[0] = 1;
-  PROTECT(s_call = LCONS(R_IdenticalFunc, list4(s_first, s_second, s_bool, s_bool)));
+  PROTECT(s_call = LCONS(Ryaml_IdenticalFunc, list4(s_first, s_second, s_bool, s_bool)));
   PROTECT(s_result = eval(s_call, R_GlobalEnv));
 
   arr = LOGICAL(s_result);
@@ -36,7 +36,7 @@ R_cmp(s_first, s_second)
 
 /* Returns the index of the first instance of needle in haystack */
 static int
-R_index(s_haystack, s_needle, character, upper_bound)
+Ryaml_index(s_haystack, s_needle, character, upper_bound)
   SEXP s_haystack;
   SEXP s_needle;
   int character;
@@ -53,7 +53,7 @@ R_index(s_haystack, s_needle, character, upper_bound)
   }
   else {
     for (i = 0; i < upper_bound; i++) {
-      if (R_cmp(s_needle, VECTOR_ELT(s_haystack, i)) == 0) {
+      if (Ryaml_cmp(s_needle, VECTOR_ELT(s_haystack, i)) == 0) {
         return i;
       }
     }
@@ -64,20 +64,20 @@ R_index(s_haystack, s_needle, character, upper_bound)
 
 /* Returns true if obj is a list with a keys attribute */
 static int
-R_is_pseudo_hash(s_obj)
+Ryaml_is_pseudo_hash(s_obj)
   SEXP s_obj;
 {
   SEXP s_keys = NULL;
   if (TYPEOF(s_obj) != VECSXP)
     return 0;
 
-  s_keys = getAttrib(s_obj, R_KeysSymbol);
+  s_keys = getAttrib(s_obj, Ryaml_KeysSymbol);
   return (s_keys != R_NilValue && TYPEOF(s_keys) == VECSXP);
 }
 
 /* Set a character attribute on an R object */
 static void
-R_set_str_attrib(s_obj, s_sym, str)
+Ryaml_set_str_attrib(s_obj, s_sym, str)
   SEXP s_obj;
   SEXP s_sym;
   char *str;
@@ -90,11 +90,11 @@ R_set_str_attrib(s_obj, s_sym, str)
 
 /* Set the R object's class attribute */
 static void
-R_set_class(s_obj, name)
+Ryaml_set_class(s_obj, name)
   SEXP s_obj;
   char *name;
 {
-  R_set_str_attrib(s_obj, R_ClassSymbol, name);
+  Ryaml_set_str_attrib(s_obj, R_ClassSymbol, name);
 }
 
 /* Get the type part of the tag, throw away any !'s */
@@ -120,20 +120,26 @@ find_handler(s_handlers, name)
   SEXP s_handlers;
   const char *name;
 {
-  SEXP s_names = NULL, s_retval = R_NilValue;
-  int i = 0;
+  SEXP s_names = NULL, s_name = NULL, s_retval = R_NilValue;
+  const char *handler_name = NULL;
+  int i = 0, found = 0;
 
   /* Look for a custom R handler */
   if (s_handlers != R_NilValue) {
     PROTECT(s_names = GET_NAMES(s_handlers));
     for (i = 0; i < length(s_names); i++) {
-      if (STRING_ELT(s_names, i) != NA_STRING) {
-        if (strcmp(translateChar(STRING_ELT(s_names, i)), name) == 0) {
+      PROTECT(s_name = STRING_ELT(s_names, i));
+      if (s_name != NA_STRING) {
+        handler_name = CHAR(s_name);
+        if (strcmp(handler_name, name) == 0) {
           /* Found custom handler */
           s_retval = VECTOR_ELT(s_handlers, i);
-          break;
+          found = 1;
         }
       }
+      UNPROTECT(1); /* s_name */
+
+      if (found) break;
     }
     UNPROTECT(1); /* s_names */
   }
@@ -188,7 +194,7 @@ handle_alias(event, s_stack_tail, s_aliases_head)
   if (!handled) {
     warning("Unknown anchor: %s", (char *)event->data.alias.anchor);
     PROTECT(s_obj = ScalarString(mkChar("_yaml.bad-anchor_")));
-    R_set_class(s_obj, "_yaml.bad-anchor_");
+    Ryaml_set_class(s_obj, "_yaml.bad-anchor_");
     UNPROTECT(1);
 
     SETCDR(*s_stack_tail, list1(s_obj));
@@ -199,10 +205,12 @@ handle_alias(event, s_stack_tail, s_aliases_head)
 }
 
 static int
-handle_scalar(event, s_stack_tail, s_handlers)
+handle_scalar(event, s_stack_tail, s_handlers, eval_expr, eval_warning)
   yaml_event_t *event;
   SEXP *s_stack_tail;
   SEXP s_handlers;
+  int eval_expr;
+  int eval_warning;
 {
   SEXP s_obj = NULL, s_handler = NULL, s_new_obj = NULL, s_expr = NULL;
   const char *value = NULL, *tag = NULL, *nptr = NULL;
@@ -301,8 +309,7 @@ handle_scalar(event, s_stack_tail, s_handlers)
         s_new_obj = ScalarInteger(n);
       }
       else {
-        /* unknown integer base */
-        coercion_err = 1;
+        /* unknown integer base; no-op */
       }
     }
     else if (strcmp(tag, "float") == 0 || strcmp(tag, "float#fix") == 0 || strcmp(tag, "float#exp") == 0) {
@@ -335,7 +342,7 @@ handle_scalar(event, s_stack_tail, s_handlers)
     else if (strcmp(tag, "merge") == 0) {
       /* see http://yaml.org/type/merge.html */
       PROTECT(s_new_obj = ScalarString(mkChar("_yaml.merge_")));
-      R_set_class(s_new_obj, "_yaml.merge_");
+      Ryaml_set_class(s_new_obj, "_yaml.merge_");
       UNPROTECT(1);
     }
     else if (strcmp(tag, "float#na") == 0) {
@@ -357,25 +364,27 @@ handle_scalar(event, s_stack_tail, s_handlers)
       s_new_obj = R_NilValue;
     }
     else if (strcmp(tag, "expr") == 0) {
-      PROTECT(s_obj);
-      s_expr = R_ParseVector(s_obj, 1, &parse_status, R_NilValue);
-      UNPROTECT(1);
+      if (eval_expr) {
+        PROTECT(s_obj);
+        s_expr = R_ParseVector(s_obj, 1, &parse_status, R_NilValue);
+        UNPROTECT(1);
 
-      if (parse_status != PARSE_OK) {
-        coercion_err = 1;
-        set_error_msg("Could not parse expression: %s", CHAR(STRING_ELT(s_obj, 0)));
-      }
-      else {
-        /* NOTE: R_tryEval will not return if R_Interactive is FALSE. */
-        PROTECT(s_expr);
-        PROTECT(s_new_obj = R_tryEval(VECTOR_ELT(s_expr, 0), R_GlobalEnv, &coercion_err));
-
-        if (coercion_err) {
-          set_error_msg("Could not evaluate expression: %s", CHAR(STRING_ELT(s_obj, 0)));
-        } else {
-          warning("R expressions in yaml.load will not be auto-evaluated by default in the near future");
+        if (parse_status != PARSE_OK) {
+          coercion_err = 1;
+          set_error_msg("Could not parse expression: %s", CHAR(STRING_ELT(s_obj, 0)));
         }
-        UNPROTECT(2); /* s_expr, s_new_obj */
+        else {
+          /* NOTE: R_tryEval will not return if R_Interactive is FALSE. */
+          PROTECT(s_expr);
+          PROTECT(s_new_obj = R_tryEval(VECTOR_ELT(s_expr, 0), R_GlobalEnv, &coercion_err));
+
+          if (coercion_err) {
+            set_error_msg("Could not evaluate expression: %s", CHAR(STRING_ELT(s_obj, 0)));
+          } else if (eval_warning) {
+            warning("R expressions in yaml.load will not be auto-evaluated by default in the near future");
+          }
+          UNPROTECT(2); /* s_expr, s_new_obj */
+        }
       }
     }
   }
@@ -404,11 +413,11 @@ handle_structure_start(event, s_stack_tail, is_map)
   yaml_char_t *tag = NULL, *anchor = NULL;
 
   if (is_map) {
-    s_sym = R_MappingStart;
+    s_sym = Ryaml_MappingStart;
     tag = event->data.mapping_start.tag;
     anchor = event->data.mapping_start.anchor;
   } else {
-    s_sym = R_SequenceStart;
+    s_sym = Ryaml_SequenceStart;
     tag = event->data.sequence_start.tag;
     anchor = event->data.sequence_start.anchor;
   }
@@ -445,17 +454,17 @@ handle_sequence(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
 {
   SEXP s_curr = NULL, s_obj = NULL, s_sequence_start = NULL, s_list = NULL,
        s_handler = NULL, s_new_obj = NULL, s_keys = NULL, s_key = NULL,
-       s_tag = NULL;
+       s_tag = NULL, s_inspect = NULL;
   int count = 0, i = 0, j = 0, type = 0, child_type = 0, handled = 0,
       coercion_err = 0, len = 0, total_len = 0, dup_key = 0, idx = 0,
       obj_len = 0;
-  const char *tag = NULL;
+  const char *tag = NULL, *inspect = NULL;
 
   /* Find start of sequence and count elements */
   s_curr = CDR(s_stack_head);
   count = 0;
   while (s_curr != R_NilValue) {
-    if (CAR(s_curr) == R_SequenceStart) {
+    if (CAR(s_curr) == Ryaml_SequenceStart) {
       s_sequence_start = s_curr;
       count = 0;
     } else if (s_sequence_start != NULL) {
@@ -567,7 +576,7 @@ handle_sequence(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
       total_len = 0;
       for (i = 0; i < len; i++) {
         s_obj = VECTOR_ELT(s_list, i);
-        if ((coerce_keys && !R_is_named_list(s_obj)) || (!coerce_keys && !R_is_pseudo_hash(s_obj))) {
+        if ((coerce_keys && !Ryaml_is_named_list(s_obj)) || (!coerce_keys && !Ryaml_is_pseudo_hash(s_obj))) {
           set_error_msg("omap must be a sequence of maps");
           coercion_err = 1;
           break;
@@ -584,7 +593,7 @@ handle_sequence(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
         }
         else {
           s_keys = allocVector(VECSXP, total_len);
-          setAttrib(s_new_obj, R_KeysSymbol, s_keys);
+          setAttrib(s_new_obj, Ryaml_KeysSymbol, s_keys);
         }
 
         for (i = 0, idx = 0; i < len && dup_key == 0; i++) {
@@ -597,19 +606,23 @@ handle_sequence(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
               PROTECT(s_key = STRING_ELT(GET_NAMES(s_obj), j));
               SET_STRING_ELT(s_keys, idx, s_key);
 
-              if (R_index(s_keys, s_key, 1, idx) >= 0) {
+              if (Ryaml_index(s_keys, s_key, 1, idx) >= 0) {
                 dup_key = 1;
                 set_error_msg("Duplicate omap key: '%s'", CHAR(s_key));
               }
               UNPROTECT(1); /* s_key */
             }
             else {
-              s_key = VECTOR_ELT(getAttrib(s_obj, R_KeysSymbol), j);
+              s_key = VECTOR_ELT(getAttrib(s_obj, Ryaml_KeysSymbol), j);
               SET_VECTOR_ELT(s_keys, idx, s_key);
 
-              if (R_index(s_keys, s_key, 0, idx) >= 0) {
+              if (Ryaml_index(s_keys, s_key, 0, idx) >= 0) {
                 dup_key = 1;
-                set_error_msg("Duplicate omap key: %s", R_inspect(s_key));
+
+                PROTECT(s_inspect = Ryaml_inspect(s_key));
+                inspect = CHAR(STRING_ELT(s_inspect, 0));
+                set_error_msg("Duplicate omap key: %s", inspect);
+                UNPROTECT(1);
               }
             }
             idx++;
@@ -682,7 +695,7 @@ find_map_entry(s_map_head, s_key, character)
   }
   else {
     while (CAR(s_curr) != R_NilValue) {
-      if (R_cmp(s_key, CAR(TAG(s_curr))) == 0) {
+      if (Ryaml_cmp(s_key, CAR(TAG(s_curr))) == 0) {
         return s_curr;
       }
       s_curr = CDR(s_curr);
@@ -699,10 +712,12 @@ expand_merge(s_merge_list, s_map_head, s_map_tail, coerce_keys)
   SEXP *s_map_tail;
   int coerce_keys;
 {
-  SEXP s_merge_keys = NULL, s_value = NULL, s_key = NULL, s_result = NULL;
+  SEXP s_merge_keys = NULL, s_value = NULL, s_key = NULL, s_result = NULL,
+       s_inspect = NULL;
   int i = 0, count = 0;
+  const char *inspect = NULL;
 
-  s_merge_keys = coerce_keys ? GET_NAMES(s_merge_list) : getAttrib(s_merge_list, R_KeysSymbol);
+  s_merge_keys = coerce_keys ? GET_NAMES(s_merge_list) : getAttrib(s_merge_list, Ryaml_KeysSymbol);
   for (i = 0; i < length(s_merge_list); i++) {
     s_value = VECTOR_ELT(s_merge_list, i);
     if (coerce_keys) {
@@ -716,8 +731,18 @@ expand_merge(s_merge_list, s_map_head, s_map_tail, coerce_keys)
     s_result = find_map_entry(s_map_head, s_key, coerce_keys);
     if (s_result != NULL) {
       /* A matching key is already in the map, so ignore this one. */
-      warning("Duplicate map key ignored during merge: '%s'",
-          coerce_keys ? CHAR(s_key) : R_inspect(s_key));
+      if (coerce_keys) {
+        inspect = CHAR(s_key);
+      }
+      else {
+        PROTECT(s_inspect = Ryaml_inspect(s_key));
+        inspect = CHAR(STRING_ELT(s_inspect, 0));
+      }
+      warning("Duplicate map key ignored during merge: '%s'", inspect);
+
+      if (!coerce_keys) {
+        UNPROTECT(1); /* s_inspect */
+      }
     }
     else {
       SETCDR(*s_map_tail, list1(s_value));
@@ -737,8 +762,8 @@ is_mergeable(s_merge_list, coerce_keys)
   SEXP s_merge_list;
   int coerce_keys;
 {
-  return (coerce_keys && R_is_named_list(s_merge_list)) ||
-    (!coerce_keys && R_is_pseudo_hash(s_merge_list));
+  return (coerce_keys && Ryaml_is_named_list(s_merge_list)) ||
+    (!coerce_keys && Ryaml_is_pseudo_hash(s_merge_list));
 }
 
 static int
@@ -752,14 +777,15 @@ handle_map(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
   SEXP s_list = NULL, s_keys = NULL, s_key = NULL, s_value = NULL,
        s_obj = NULL, s_curr = NULL, s_mapping_start = NULL,
        s_interim_map_head = NULL, s_interim_map_tail = NULL,
-       s_new_obj = NULL, s_handler = NULL, s_tag = NULL, s_result = NULL;
+       s_new_obj = NULL, s_handler = NULL, s_tag = NULL, s_result = NULL,
+       s_inspect = NULL;
   int count = 0, i = 0, map_err = 0, handled = 0, coercion_err = 0, len = 0;
-  const char *tag = NULL;
+  const char *tag = NULL, *inspect = NULL;
 
   /* Find beginning of map */
   s_curr = CDR(s_stack_head);
   while (s_curr != R_NilValue) {
-    if (CAR(s_curr) == R_MappingStart) {
+    if (CAR(s_curr) == Ryaml_MappingStart) {
       s_mapping_start = s_curr;
     }
     s_curr = CDR(s_curr);
@@ -771,13 +797,13 @@ handle_map(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
 
   /* Iterate keys and values */
   s_curr = CDR(s_mapping_start);
-  PROTECT(s_interim_map_head = s_interim_map_tail = list1(R_MappingStart));
+  PROTECT(s_interim_map_head = s_interim_map_tail = list1(Ryaml_MappingStart));
   while (!map_err && s_curr != R_NilValue) {
     s_key = CAR(s_curr);
     s_value = CADR(s_curr);
     s_curr = CDDR(s_curr);
 
-    if (R_has_class(s_key, "_yaml.merge_")) {
+    if (Ryaml_has_class(s_key, "_yaml.merge_")) {
       if (is_mergeable(s_value, coerce_keys)) {
         /* i.e.
          *    - &bar { hey: dude }
@@ -814,7 +840,11 @@ handle_map(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
           }
           else {
             /* Illegal merge */
-            set_error_msg("Illegal merge: %s", R_inspect(s_value));
+            PROTECT(s_inspect = Ryaml_inspect(s_value));
+            inspect = CHAR(STRING_ELT(s_inspect, 0));
+            set_error_msg("Illegal merge: %s", inspect);
+            UNPROTECT(1);
+
             map_err = 1;
             break;
           }
@@ -822,7 +852,11 @@ handle_map(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
       }
       else {
         /* Illegal merge */
-        set_error_msg("Illegal merge: %s", R_inspect(s_value));
+        PROTECT(s_inspect = Ryaml_inspect(s_value));
+        inspect = CHAR(STRING_ELT(s_inspect, 0));
+        set_error_msg("Illegal merge: %s", inspect);
+        UNPROTECT(1);
+
         map_err = 1;
       }
     }
@@ -854,7 +888,19 @@ handle_map(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
          * merge, it's okay to ignore it. If not, it's a duplicate key error. */
         s_tag = TAG(s_result);
         if (LOGICAL(CADR(s_tag))[0] == FALSE) {
-          set_error_msg("Duplicate map key: '%s'", coerce_keys ? CHAR(s_key) : R_inspect(s_key));
+          if (coerce_keys) {
+            inspect = CHAR(s_key);
+          }
+          else {
+            PROTECT(s_inspect = Ryaml_inspect(s_key));
+            inspect = CHAR(STRING_ELT(s_inspect, 0));
+          }
+          set_error_msg("Duplicate map key: '%s'", inspect);
+
+          if (!coerce_keys) {
+            UNPROTECT(1); /* s_inspect */
+          }
+
           map_err = 1;
         }
       }
@@ -884,7 +930,7 @@ handle_map(event, s_stack_head, s_stack_tail, s_handlers, coerce_keys)
   }
   else {
     s_keys = allocVector(VECSXP, count);
-    setAttrib(s_list, R_KeysSymbol, s_keys);
+    setAttrib(s_list, Ryaml_KeysSymbol, s_keys);
   }
 
   /* Iterate map entries */
@@ -1016,45 +1062,85 @@ possibly_record_alias(s_anchor, s_aliases_tail, s_obj)
 }
 
 SEXP
-R_unserialize_from_yaml(s_str, s_use_named, s_handlers, s_error_label)
-  SEXP s_str;
-  SEXP s_use_named;
+Ryaml_unserialize_from_yaml(s_string, s_as_named_list, s_handlers, s_error_label,
+    s_eval_expr, s_eval_warning)
+  SEXP s_string;
+  SEXP s_as_named_list;
   SEXP s_handlers;
   SEXP s_error_label;
+  SEXP s_eval_expr;
+  SEXP s_eval_warning;
 {
-  SEXP s_retval = NULL, s_handler = NULL, s_names = NULL, s_handlers_2 = NULL,
-       s_stack_head = NULL, s_stack_tail = NULL, s_aliases_head = NULL,
-       s_aliases_tail = NULL, s_anchor = NULL;
+  SEXP s_retval = NULL, s_handler = NULL, s_names = NULL, s_names_2 = NULL,
+       s_name = NULL, s_handlers_2 = NULL, s_stack_head = NULL,
+       s_stack_tail = NULL, s_aliases_head = NULL, s_aliases_tail = NULL,
+       s_anchor = NULL;
   yaml_parser_t parser;
   yaml_event_t event;
-  const char *str = NULL, *name = NULL, *error_label = NULL;
+  const char *string = NULL, *name = NULL, *name_2 = NULL, *error_label = NULL;
   char *error_msg_copy = NULL;
   long len = 0;
-  int use_named = 0, i = 0, done = 0, err = 0;
+  int as_named_list = 0, i = 0, done = 0, err = 0, eval_expr = 0, eval_warning = 0;
+  cetype_t encoding;
 
-  if (!isString(s_str) || length(s_str) != 1) {
-    error("first argument must be a character vector of length 1");
+  if (!isString(s_string) || length(s_string) != 1) {
+    error("string argument must be a character vector of length 1");
     return R_NilValue;
   }
 
-  if (!isLogical(s_use_named) || length(s_use_named) != 1) {
-    error("second argument must be a logical vector of length 1");
+  if (!isLogical(s_as_named_list) || length(s_as_named_list) != 1) {
+    error("as.named.list argument must be a logical vector of length 1");
+    return R_NilValue;
+  }
+
+  if (s_error_label == R_NilValue) {
+    error_label = NULL;
+  }
+  else if (!isString(s_error_label) || length(s_error_label) != 1) {
+    error("error.label argument must be either NULL or a character vector of length 1");
+    return R_NilValue;
+  } else {
+    error_label = CHAR(STRING_ELT(s_error_label, 0));
+  }
+
+  if (!isLogical(s_eval_expr) || length(s_eval_expr) != 1) {
+    error("eval.expr argument must be a logical vector of length 1");
+    return R_NilValue;
+  }
+
+  if (!isLogical(s_eval_warning) || length(s_eval_warning) != 1) {
+    error("eval.warning argument must be a logical vector of length 1");
     return R_NilValue;
   }
 
   if (s_handlers == R_NilValue) {
     // Do nothing
   }
-  else if (!R_is_named_list(s_handlers)) {
+  else if (!Ryaml_is_named_list(s_handlers)) {
     error("handlers must be either NULL or a named list of functions");
     return R_NilValue;
   }
   else {
+    PROTECT(s_names = GET_NAMES(s_handlers));
+
     PROTECT(s_handlers_2 = allocVector(VECSXP, length(s_handlers)));
-    s_names = GET_NAMES(s_handlers);
-    SET_NAMES(s_handlers_2, s_names);
+    PROTECT(s_names_2 = allocVector(STRSXP, length(s_names)));
+
     for (i = 0; i < length(s_handlers); i++) {
-      name = CHAR(STRING_ELT(s_names, i));
+      /* Possibly convert name to UTF-8 */
+      PROTECT(s_name = STRING_ELT(s_names, i));
+      encoding = getCharCE(s_name);
+      if (encoding == CE_UTF8) {
+        SET_STRING_ELT(s_names_2, i, s_name);
+      }
+      else {
+        name = CHAR(s_name);
+        name_2 = reEnc(name, encoding, CE_UTF8, 1);
+        SET_STRING_ELT(s_names_2, i, mkCharCE(name_2, CE_UTF8));
+      }
+      UNPROTECT(1); /* s_name */
+
+      /* Validate handler */
       s_handler = VECTOR_ELT(s_handlers, i);
 
       if (TYPEOF(s_handler) != CLOSXP) {
@@ -1069,30 +1155,25 @@ R_unserialize_from_yaml(s_str, s_use_named, s_handlers, s_error_label)
 
       SET_VECTOR_ELT(s_handlers_2, i, s_handler);
     }
+
+    SET_NAMES(s_handlers_2, s_names_2);
     s_handlers = s_handlers_2;
-    UNPROTECT(1);
-  }
 
-  if (s_error_label == R_NilValue) {
-    error_label = NULL;
+    UNPROTECT(3); /* s_names, s_names_2, s_handlers_2 */
   }
-  else if (!isString(s_error_label) || length(s_error_label) != 1) {
-    error("error_label must be either NULL or a character vector of length 1");
-    return R_NilValue;
-  } else {
-    error_label = CHAR(STRING_ELT(s_error_label, 0));
-  }
+  PROTECT(s_handlers);
 
-  str = CHAR(STRING_ELT(s_str, 0));
-  len = length(STRING_ELT(s_str, 0));
-  use_named = LOGICAL(s_use_named)[0];
+  string = CHAR(STRING_ELT(s_string, 0));
+  len = length(STRING_ELT(s_string, 0));
+  as_named_list = LOGICAL(s_as_named_list)[0];
+  eval_expr = LOGICAL(s_eval_expr)[0];
+  eval_warning = LOGICAL(s_eval_warning)[0];
 
   yaml_parser_initialize(&parser);
-  yaml_parser_set_input_string(&parser, (const unsigned char *)str, len);
+  yaml_parser_set_input_string(&parser, (const unsigned char *)string, len);
 
-  PROTECT(s_stack_head = s_stack_tail = list1(R_Sentinel));
-  PROTECT(s_aliases_head = s_aliases_tail = list1(R_Sentinel));
-  PROTECT(s_handlers);
+  PROTECT(s_stack_head = s_stack_tail = list1(Ryaml_Sentinel));
+  PROTECT(s_aliases_head = s_aliases_tail = list1(Ryaml_Sentinel));
   error_msg[0] = 0;
   while (!done) {
     if (yaml_parser_parse(&parser, &event)) {
@@ -1116,7 +1197,7 @@ R_unserialize_from_yaml(s_str, s_use_named, s_handlers, s_error_label)
 #if DEBUG
           Rprintf("SCALAR: %s (%s) [%s]\n", event.data.scalar.value, event.data.scalar.tag, event.data.scalar.anchor);
 #endif
-          err = handle_scalar(&event, &s_stack_tail, s_handlers);
+          err = handle_scalar(&event, &s_stack_tail, s_handlers, eval_expr, eval_warning);
           if (!err) {
             s_anchor = NULL;
             if (event.data.scalar.anchor != NULL) {
@@ -1137,7 +1218,7 @@ R_unserialize_from_yaml(s_str, s_use_named, s_handlers, s_error_label)
 #if DEBUG
           Rprintf("SEQUENCE END\n");
 #endif
-          err = handle_sequence(&event, s_stack_head, &s_stack_tail, s_handlers, use_named);
+          err = handle_sequence(&event, s_stack_head, &s_stack_tail, s_handlers, as_named_list);
           if (!err) {
             s_anchor = CADR(TAG(s_stack_tail));
             possibly_record_alias(s_anchor, &s_aliases_tail, CAR(s_stack_tail));
@@ -1156,7 +1237,7 @@ R_unserialize_from_yaml(s_str, s_use_named, s_handlers, s_error_label)
 #if DEBUG
           Rprintf("MAPPING END\n");
 #endif
-          err = handle_map(&event, s_stack_head, &s_stack_tail, s_handlers, use_named);
+          err = handle_map(&event, s_stack_head, &s_stack_tail, s_handlers, as_named_list);
           if (!err) {
             s_anchor = CADR(TAG(s_stack_tail));
             possibly_record_alias(s_anchor, &s_aliases_tail, CAR(s_stack_tail));
@@ -1166,7 +1247,7 @@ R_unserialize_from_yaml(s_str, s_use_named, s_handlers, s_error_label)
           break;
 
         case YAML_STREAM_END_EVENT:
-          if (CADR(s_stack_head) != R_Sentinel) {
+          if (CADR(s_stack_head) != Ryaml_Sentinel) {
             s_retval = CADR(s_stack_head);
           }
           else {
