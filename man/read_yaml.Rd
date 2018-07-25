@@ -42,16 +42,19 @@
 
   libyaml: http://pyyaml.org/wiki/LibYAML
 }
-\author{Jeremy Stephens <jeremy.stephens@vanderbilt.edu>}
+\author{Jeremy Stephens <jeremy.f.stephens@vumc.org>}
 \seealso{\code{\link{yaml.load}}, \code{\link{write_yaml}}, \code{\link{yaml.load_file}}}
 \examples{
 \dontrun{
   # reading from a file connection
-  con <- file("data.yml", "w")
+  filename <- tempfile()
+  cat("test: data\n", file = filename)
+  con <- file(filename, "r")
   read_yaml(con)
+  close(con)
 
   # using a filename to specify input file
-  read_yaml("data.yml")
+  read_yaml(filename)
 }
 
   # reading from a character vector

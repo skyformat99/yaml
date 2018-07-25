@@ -22,16 +22,18 @@
 
   This function is a convenient wrapper around \code{\link{as.yaml}}.
 }
-\author{Jeremy Stephens <jeremy.stephens@vanderbilt.edu>}
+\author{Jeremy Stephens <jeremy.f.stephens@vumc.org>}
 \seealso{\code{\link{as.yaml}}, \code{\link{read_yaml}}, \code{\link{yaml.load_file}}}
 \examples{
 \dontrun{
   # writing to a file connection
-  con <- file("data.yml", "w")
+  filename <- tempfile()
+  con <- file(filename, "w")
   write_yaml(data.frame(a=1:10, b=letters[1:10], c=11:20), con)
+  close(con)
 
   # using a filename to specify output file
-  write_yaml(data.frame(a=1:10, b=letters[1:10], c=11:20), "data.yml")
+  write_yaml(data.frame(a=1:10, b=letters[1:10], c=11:20), filename)
 }
 }
 \keyword{data}
