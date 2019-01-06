@@ -1,0 +1,23 @@
+Source: yaml
+Section: gnu-r
+Priority: optional
+Maintainer: cran2deb4ubuntu <cran2deb4ubuntu@gmail.com>
+Build-Depends: r-base-dev, xvfb, xauth, xfonts-base, r-base-core,
+ debhelper (>> 4.1.0), cdbs
+Standards-Version: 3.9.1
+Homepage: https://github.com/viking/r-yaml/
+
+Package: r-cran-yaml
+Architecture: any
+Depends: r-base-core, ${shlibs:Depends}
+Description: GNU R package "Methods to Convert R Data to YAML and Back"
+ .
+ Implements the 'libyaml' 'YAML' 1.1 parser and emitter
+ (<http://pyyaml.org/wiki/LibYAML>) for R.
+ .
+ Author: Jeremy Stephens [aut, cre], Kirill Simonov [aut], Yihui Xie
+ [ctb], Zhuoer Dong [ctb], Hadley Wickham [ctb], Jeffrey Horner [ctb],
+ reikoch [ctb], Will Beasley [ctb], Brendan O'Connor [ctb], Gregory R.
+ Warnes [ctb]
+ .
+ Maintainer: Jeremy Stephens <jeremy.f.stephens@vumc.org>
